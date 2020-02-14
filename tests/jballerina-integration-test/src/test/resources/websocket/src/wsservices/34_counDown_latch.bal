@@ -18,36 +18,34 @@ import ballerina/http;
 
 @http:WebSocketServiceConfig {
 }
-service on new http:Listener(21031) {
+service on new http:Listener(21034) {
 
     resource function onOpen(http:WebSocketCaller wsEp) {
-        http:WebSocketClient wsClientEp = new("ws://localhost:15300/websocket", { callbackService:
-        retryCallbackService, readyOnConnect: false, retryConfig: {maxCount: 10, intervalInMillis: 500,
-        backOffFactor: 0.5}});
+        http:WebSocketFailoverClient wsClientEp = new({callbackService: callbackService,
+            readyOnConnect: false, targetUrls: ["ws://localhost:15300/websocket",
+            "ws://localhost:21033/basic/ws"], handShakeTimeoutInSeconds: 7});
+
         wsEp.setAttribute(ASSOCIATED_CONNECTION, wsClientEp);
         wsClientEp.setAttribute(ASSOCIATED_CONNECTION, wsEp);
         checkpanic wsClientEp->ready();
     }
 
     resource function onText(http:WebSocketCaller wsEp, string text) {
-        http:WebSocketClient clientEp = getAssociatedClientEndpoint(wsEp);
+        http:WebSocketFailoverClient clientEp = getAssociatedFailoverClientEndpoint(wsEp);
         checkpanic clientEp->pushText(text);
-    }
-
-    resource function onBinary(http:WebSocketCaller wsEp, byte[] data) {
-        http:WebSocketClient clientEp = getAssociatedClientEndpoint(wsEp);
-        checkpanic clientEp->pushBinary(data);
     }
 }
 
-service retryCallbackService = @http:WebSocketServiceConfig {} service {
-    resource function onText(http:WebSocketClient wsEp, string text) {
-        http:WebSocketCaller serviceEp = getAssociatedListener(wsEp);
+service callbackService = @http:WebSocketServiceConfig {} service {
+
+    resource function onText(http:WebSocketFailoverClient wsEp, string text) {
+        http:WebSocketCaller serviceEp = getAssociatedFailoverListener(wsEp);
         checkpanic serviceEp->pushText(text);
     }
 
-    resource function onBinary(http:WebSocketClient wsEp, byte[] data) {
-        http:WebSocketCaller serviceEp = getAssociatedListener(wsEp);
-        checkpanic serviceEp->pushBinary(data);
+    //This resource gets invoked when an error occurs in the connection.
+    resource function onError(http:WebSocketFailoverClient wsEp, error err) {
+        http:WebSocketCaller serviceEp = getAssociatedFailoverListener(wsEp);
+        checkpanic serviceEp->pushText(err.toString());
     }
 };

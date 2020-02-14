@@ -19,12 +19,14 @@ import ballerinax/java;
 
 # Represents a WebSocket connection in Ballerina. This includes all connection-oriented operations.
 type WebSocketConnector object {
+    private boolean isReady = false;
 
-    # Push text to the connection.
+    # Pushes text to the connection.
     #
     # + data - Data to be sent, if byte[] it is converted to a UTF-8 string for sending
     # + finalFrame - Set to `true` if this is a final frame of a (long) message
-    # + return  - `error` if an error occurs when sending
+    # + return - An `error`. If an error occurs while sending the text message to the server, that message
+    #            will be lost
     public function pushText(string|json|xml|boolean|int|float|byte|byte[] data, boolean finalFrame)
     returns WebSocketError? {
         string text = "";
@@ -43,32 +45,41 @@ type WebSocketConnector object {
         return externPushText(self, java:fromString(text), finalFrame);
     }
 
-    # Push binary data to the connection.
+    # Pushes binary data to the connection.
     #
     # + data - Binary data to be sent
     # + finalFrame - Set to `true` if this is a final frame of a (long) message
-    # + return - `error` if an error occurs when sending
+    # + return - An `error`. If an error occurs while sending the binary message to the server, that message
+    #            will be lost
     public function pushBinary(byte[] data, boolean finalFrame) returns WebSocketError? {
         return externPushBinary(self, data, finalFrame);
     }
 
-    # Ping the connection.
+    # Pings the connection.
     #
-    # + data - Binary data to be sent.
-    # + return - `error` if an error occurs when sending
+    # + data - Binary data to be sent
+    # + return - An `error`. If an error occurs while sending the ping frame to the server, that frame will be lost
     public function ping(byte[] data) returns WebSocketError? {
         return externPing(self, data);
     }
 
-    # Send pong message to the connection.
+    # Sends pong message to the connection.
     #
     # + data - Binary data to be sent
-    # + return - `error` if an error occurs when sending
+    # + return - An `error`. If an error occurs while sending the pong frame to the server, that frame will be lost
     public function pong(byte[] data) returns WebSocketError? {
         return externPong(self, data);
     }
 
-    # Close the connection.
+    # Calls when the endpoint is ready to receive messages. It can be called only once per endpoint. The
+    # WebSocketListener can be called only in the `upgrade` or `onOpen` resources.
+    #
+    # + return - An `error` if an error occurs when sending
+    public function ready() returns WebSocketError? {
+        return externReady(self);
+    }
+
+    # Closes the connection.
     #
     # + statusCode - Status code for closing the connection
     # + reason - Reason for closing the connection
@@ -76,18 +87,19 @@ type WebSocketConnector object {
     #                   connection. If the timeout exceeds, then the connection is terminated even though a close frame
     #                   is not received from the remote endpoint. If the value < 0 (e.g., -1), then the connection waits
     #                   until a close frame is received. If WebSocket frame is received from the remote endpoint,
-    #                   within waiting period the connection is terminated immediately.
-    # + return - `error` if an error occurs when sending
+    #                   within waiting period the connection is terminated immediately
+    # + return - An `error` if an error occurs when sending
     public function close(int? statusCode = 1000, string? reason = (), int timeoutInSecs = 60)
     returns WebSocketError? {
         if (statusCode is int) {
             if (statusCode <= 999 || statusCode >= 1004 && statusCode <= 1006 || statusCode >= 1012 &&
                 statusCode <= 2999 || statusCode > 4999) {
-                WsConnectionClosureError err = WsConnectionClosureError(message = "Failed to execute close. Invalid status code: " +
-                statusCode.toString());
+                WsConnectionClosureError err = WsConnectionClosureError(message = "Failed to execute close." +
+                " Invalid status code: " + statusCode.toString());
                 return err;
             }
-            return externClose(self, statusCode, reason is () ? java:fromString("") : java:fromString(reason) , timeoutInSecs);
+            return externClose(self, statusCode, reason is () ? java:fromString("") : java:fromString(reason),
+            timeoutInSecs);
         } else {
             return externClose(self, -1, java:fromString(""), timeoutInSecs);
         }
@@ -117,7 +129,12 @@ function externPong(WebSocketConnector wsConnector, byte[] data) returns WebSock
     name: "pong"
 } external;
 
-function externClose(WebSocketConnector wsConnector, int statusCode, handle reason, int timeoutInSecs) returns WebSocketError? =
-@java:Method {
+function externClose(WebSocketConnector wsConnector, int statusCode, handle reason, int timeoutInSecs) returns
+WebSocketError? = @java:Method {
     class: "org.ballerinalang.net.http.actions.websocketconnector.Close"
+} external;
+
+function externReady(WebSocketConnector wsConnector) returns WebSocketError? = @java:Method {
+    class: "org.ballerinalang.net.http.actions.websocketconnector.Ready",
+    name: "ready"
 } external;
