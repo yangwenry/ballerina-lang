@@ -34,6 +34,7 @@ import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.Constants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -66,6 +67,7 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
     private transient Path executableDir;
     private transient Path targetJarCacheDir;
     private transient Path targetBirCacheDir;
+    private transient Path targetTestJsonCacheDir;
     private transient Path baloCacheDir;
     private SourceType srcType;
     private transient PrintStream out;
@@ -114,6 +116,11 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
                 this.targetJarCacheDir = targetPath
                         .resolve(ProjectDirConstants.CACHES_DIR_NAME)
                         .resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
+
+                // save '<target>/cache/json_cache' dir for jar files
+                this.targetTestJsonCacheDir = targetPath
+                        .resolve(ProjectDirConstants.CACHES_DIR_NAME)
+                        .resolve(ProjectDirConstants.JSON_CACHE_DIR_NAME);
                 
                 // save '<target>/bin' dir for executables
                 this.executableDir = targetPath.resolve(ProjectDirConstants.BIN_DIR_NAME);
@@ -508,6 +515,25 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
             throw new BLangCompilerException("error creating bir_cache dir for module(s): " + this.executableDir);
         }
     }
+
+    public Path getTestJsonPathTargetCache(PackageID moduleID) {
+        try {
+            Files.createDirectories(targetTestJsonCacheDir);
+            switch (this.getSourceType()) {
+                case SINGLE_MODULE:
+                case ALL_MODULES:
+                    return Files.createDirectories(targetTestJsonCacheDir.resolve(moduleID.orgName.value)
+                                                           .resolve(moduleID.name.value)
+                                                           .resolve(moduleID.version.value));
+                default:
+                    return targetTestJsonCacheDir;
+            }
+
+        } catch (IOException e) {
+            throw new BLangCompilerException("error creating test_json_cache " +
+                                                     "dir for module(s): " + targetTestJsonCacheDir);
+        }
+    }
     
     /**
      * Check if the a given dependency is from provided by path to the balo.
@@ -537,5 +563,15 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
     public Path getLockFilePath() {
         Path sourceRootPath = this.get(BuildContextField.SOURCE_ROOT);
         return sourceRootPath.resolve(ProjectDirConstants.LOCK_FILE_NAME);
+    }
+
+    public boolean skipTests() {
+        CompilerContext context = this.get(BuildContextField.COMPILER_CONTEXT);
+        if (context == null) {
+            return false;
+        }
+        CompilerOptions compilerOptions = CompilerOptions.getInstance(context);
+        String skipTestsArg = compilerOptions.get(CompilerOptionName.SKIP_TESTS);
+        return (skipTestsArg != null && !skipTestsArg.equals(Constants.SKIP_TESTS));
     }
 }

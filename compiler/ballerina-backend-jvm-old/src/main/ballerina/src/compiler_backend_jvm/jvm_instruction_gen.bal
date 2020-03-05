@@ -17,6 +17,10 @@
 import ballerina/io;
 import ballerina/bir;
 import ballerina/jvm;
+import ballerina/runtime;
+
+boolean IS_BSTRING = runtime:getProperty("ballerina.bstring") != "";
+string BSTRING_VALUE = runtime:getProperty("ballerina.bstring") == "" ? STRING_VALUE : B_STRING_VALUE;
 
 type InstructionGenerator object {
     jvm:MethodVisitor mv;
@@ -31,7 +35,7 @@ type InstructionGenerator object {
         self.currentPackageName = getPackageName(moduleId.org.value, moduleId.name.value);
     }
 
-    function generateConstantLoadIns(bir:ConstantLoad loadIns) {
+    function generateConstantLoadIns(bir:ConstantLoad loadIns, boolean useBString) {
         bir:BType bType = loadIns.typeValue;
 
         if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
@@ -41,8 +45,28 @@ type InstructionGenerator object {
             any val = loadIns.value;
             self.mv.visitLdcInsn(val);
         } else if (bType is bir:BTypeString) {
-            any val = loadIns.value;
-            self.mv.visitLdcInsn(val);
+            string val = <string> loadIns.value;
+            if (useBString) {
+                int[] highSurrogates = listHighSurrogates(val);
+
+                self.mv.visitTypeInsn(NEW, NON_BMP_STRING_VALUE);
+                self.mv.visitInsn(DUP);
+                self.mv.visitLdcInsn(val);
+                self.mv.visitIntInsn(BIPUSH, highSurrogates.length());
+                self.mv.visitIntInsn(NEWARRAY, T_INT);
+
+                int i = 0;
+                foreach var char in highSurrogates {
+                    self.mv.visitInsn(DUP);
+                    self.mv.visitIntInsn(BIPUSH, i);
+                    self.mv.visitIntInsn(BIPUSH, char);
+                    i = i + 1;
+                    self.mv.visitInsn(IASTORE);
+                }
+                self.mv.visitMethodInsn(INVOKESPECIAL, NON_BMP_STRING_VALUE, "<init>", io:sprintf("(L%s;[I)V", STRING_VALUE), false);
+            } else {
+                self.mv.visitLdcInsn(val);
+            }
         } else if (bType is bir:BTypeDecimal) {
             any val = loadIns.value;
             self.mv.visitTypeInsn(NEW, DECIMAL_VALUE);
@@ -397,8 +421,13 @@ type InstructionGenerator object {
         } else if (bType is bir:BTypeByte) {
             self.mv.visitInsn(IADD);
         } else if (bType is bir:BTypeString) {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "concat",
-                                    io:sprintf("(L%s;)L%s;", STRING_VALUE, STRING_VALUE) , false);
+            if(IS_BSTRING){
+                self.mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "concat",
+                                        io:sprintf("(L%s;)L%s;", B_STRING_VALUE, B_STRING_VALUE) , true);
+            } else {
+                self.mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "concat",
+                                        io:sprintf("(L%s;)L%s;", STRING_VALUE, STRING_VALUE) , false);
+            }
         } else if (bType is bir:BTypeDecimal) {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, DECIMAL_VALUE, "add",
                 io:sprintf("(L%s;)L%s;", DECIMAL_VALUE, DECIMAL_VALUE) , false);
@@ -642,14 +671,6 @@ type InstructionGenerator object {
         self.storeToVar(tableNewIns.lhsOp.variableDcl);
     }
 
-    function generateStreamNewIns(bir:NewStream streamNewIns) {
-        self.mv.visitTypeInsn(NEW, STREAM_VALUE);
-        self.mv.visitInsn(DUP);
-        loadType(self.mv, streamNewIns.streamType);
-        self.mv.visitMethodInsn(INVOKESPECIAL, STREAM_VALUE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
-        self.storeToVar(streamNewIns.lhsOp.variableDcl);
-    }
-
     function generateMapStoreIns(bir:FieldAccess mapStoreIns) {
         // visit map_ref
         self.loadVar(mapStoreIns.lhsOp.variableDcl);
@@ -726,7 +747,7 @@ type InstructionGenerator object {
         self.storeToVar(objectLoadIns.lhsOp.variableDcl);
     }
 
-    function generateObjectStoreIns(bir:FieldAccess objectStoreIns) {
+    function generateObjectStoreIns(bir:FieldAccess objectStoreIns, boolean useBString) {
         // visit object_ref
         self.loadVar(objectStoreIns.lhsOp.variableDcl);
         bir:BType varRefType = objectStoreIns.lhsOp.variableDcl.typeValue;
@@ -741,7 +762,7 @@ type InstructionGenerator object {
 
         // invoke set() method
         self.mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "set",
-                io:sprintf("(L%s;L%s;)V", STRING_VALUE, OBJECT), true);
+                io:sprintf("(L%s;L%s;)V", useBString ? B_STRING_VALUE : STRING_VALUE, OBJECT), true);
     }
 
     function generateStringLoadIns(bir:FieldAccess stringLoadIns) {
@@ -762,13 +783,18 @@ type InstructionGenerator object {
     # Generate a new instance of an array value
     # 
     # + inst - the new array instruction
-    function generateArrayNewIns(bir:NewArray inst) {
+    function generateArrayNewIns(bir:NewArray inst, boolean useBString) {
         if (inst.typeValue is bir:BArrayType) {
             self.mv.visitTypeInsn(NEW, ARRAY_VALUE_IMPL);
             self.mv.visitInsn(DUP);
             loadType(self.mv, inst.typeValue);
             self.loadVar(inst.sizeOp.variableDcl);
-            self.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, "<init>", io:sprintf("(L%s;J)V", ARRAY_TYPE), false);
+            if (useBString) {
+                self.mv.visitInsn(ICONST_1);
+                self.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, "<init>", io:sprintf("(L%s;JZ)V", ARRAY_TYPE), false);
+            } else {
+                self.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, "<init>", io:sprintf("(L%s;J)V", ARRAY_TYPE), false);
+            }
             self.storeToVar(inst.lhsOp.variableDcl);
         } else {
             self.mv.visitTypeInsn(NEW, TUPLE_VALUE_IMPL);
@@ -783,7 +809,7 @@ type InstructionGenerator object {
     # Generate adding a new value to an array
     # 
     # + inst - array store instruction
-    function generateArrayStoreIns(bir:FieldAccess inst) {
+    function generateArrayStoreIns(bir:FieldAccess inst, boolean useBString) {
         self.loadVar(inst.lhsOp.variableDcl);
         self.loadVar(inst.keyOp.variableDcl);
         self.loadVar(inst.rhsOp.variableDcl);
@@ -803,7 +829,8 @@ type InstructionGenerator object {
         } else if (valueType is bir:BTypeFloat) {
             self.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "add", "(JD)V", true);
         } else if (valueType is bir:BTypeString) {
-            self.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "add", io:sprintf("(JL%s;)V", STRING_VALUE), true);
+            self.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "add", io:sprintf("(JL%s;)V", useBString ? 
+            B_STRING_VALUE : STRING_VALUE), true);
         } else if (valueType is bir:BTypeBoolean) {
             self.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "add", "(JZ)V", true);
         } else if (valueType is bir:BTypeByte) {
@@ -817,7 +844,7 @@ type InstructionGenerator object {
     # Generating loading a new value from an array to the top of the stack
     # 
     # + inst - field access instruction
-    function generateArrayValueLoad(bir:FieldAccess inst) {
+    function generateArrayValueLoad(bir:FieldAccess inst, boolean useBString) {
         self.loadVar(inst.rhsOp.variableDcl);
         self.mv.visitTypeInsn(CHECKCAST, ARRAY_VALUE);
         self.loadVar(inst.keyOp.variableDcl);
@@ -830,8 +857,13 @@ type InstructionGenerator object {
         } else if (bType is bir:BTypeInt) {
             self.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getInt", "(J)J", true);
         } else if (bType is bir:BTypeString) {
-            self.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getString", io:sprintf("(J)L%s;", STRING_VALUE),
+            if (useBString) {
+                self.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getBString", io:sprintf("(J)L%s;", B_STRING_VALUE),
                                         true);
+            } else {
+                self.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getString", io:sprintf("(J)L%s;", STRING_VALUE),
+                                        true);   
+            }
         } else if (bType is bir:BTypeBoolean) {
             self.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getBoolean", "(J)Z", true);
         } else if (bType is bir:BTypeByte) {
@@ -841,7 +873,7 @@ type InstructionGenerator object {
             self.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getFloat", "(J)D", true);
         } else {
             self.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT), true);
-            string? targetTypeClass = getTargetClass(varRefType, bType);
+            string? targetTypeClass = getTargetClass(bType);
             if (targetTypeClass is string) {
                 self.mv.visitTypeInsn(CHECKCAST, targetTypeClass);
             } else {
@@ -863,11 +895,11 @@ type InstructionGenerator object {
         self.storeToVar(newErrorIns.lhsOp.variableDcl);
     }
 
-    function generateCastIns(bir:TypeCast typeCastIns) {
+    function generateCastIns(bir:TypeCast typeCastIns, boolean useBString) {
         // load source value
         self.loadVar(typeCastIns.rhsOp.variableDcl);
         if (typeCastIns.checkType) {
-            generateCheckCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.castType);
+            generateCheckCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.castType, useBString);
         } else {
             generateCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.castType);
         }
@@ -927,7 +959,8 @@ type InstructionGenerator object {
         self.mv.visitTypeInsn(NEW, FUNCTION_POINTER);
         self.mv.visitInsn(DUP);
 
-        string lambdaName = inst.name.value + "$lambda$";
+        string lambdaName = inst.name.value + "$lambda" + lambdaIndex.toString() + "$";
+        lambdaIndex += 1;
         string pkgName = getPackageName(inst.pkgID.org, inst.pkgID.name);
         string lookupKey = pkgName + inst.name.value;
         string methodClass = lookupFullQualifiedClassName(lookupKey);
@@ -1039,7 +1072,7 @@ type InstructionGenerator object {
 
         // invoke getAttribute() method
         self.mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "getAttribute",
-                io:sprintf("(L%s;)L%s;", XML_QNAME, STRING_VALUE), false);
+                io:sprintf("(L%s;)L%s;", BXML_QNAME, STRING_VALUE), false);
 
         // store in the target reg
         bir:BType targetType = xmlAttrStoreIns.lhsOp.variableDcl.typeValue;
@@ -1059,7 +1092,7 @@ type InstructionGenerator object {
 
         // invoke setAttribute() method
         self.mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "setAttribute",
-                io:sprintf("(L%s;L%s;)V", XML_QNAME, STRING_VALUE), false);
+                io:sprintf("(L%s;L%s;)V", BXML_QNAME, STRING_VALUE), false);
     }
 
     function generateXMLLoadIns(bir:FieldAccess xmlLoadIns) {
@@ -1156,11 +1189,11 @@ function addBoxInsn(jvm:MethodVisitor mv, bir:BType? bType) {
     }
 }
 
-function addUnboxInsn(jvm:MethodVisitor mv, bir:BType? bType) {
+function addUnboxInsn(jvm:MethodVisitor mv, bir:BType? bType, boolean useBString = false) {
     if (bType is ()) {
         return;
     } else {
-        generateCast(mv, "any", bType);
+        generateCast(mv, "any", bType, useBString = useBString);
     }
 }
 
@@ -1369,3 +1402,5 @@ function generateJVarStore(jvm:MethodVisitor mv, jvm:JType jType, string current
         panic err;
     }
 }
+
+function listHighSurrogates(string str) returns int[]  = external;

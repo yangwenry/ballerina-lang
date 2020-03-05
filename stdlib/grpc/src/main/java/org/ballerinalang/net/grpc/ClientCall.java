@@ -24,6 +24,8 @@ import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.ballerinalang.net.grpc.stubs.AbstractStub;
 import org.ballerinalang.net.http.HttpConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
@@ -32,8 +34,6 @@ import java.io.InputStream;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CancellationException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
@@ -57,7 +57,7 @@ import static org.ballerinalang.net.http.HttpConstants.HTTP_VERSION;
  */
 public final class ClientCall {
 
-    private static final Logger log = Logger.getLogger(ClientCall.class.getName());
+    private static final Logger log = LoggerFactory.getLogger(ClientCall.class);
     private final MethodDescriptor method;
     private final boolean unaryRequest;
     private HttpClientConnector connector;
@@ -92,7 +92,7 @@ public final class ClientCall {
                 x -> observerContext.ifPresent(ctx -> ctx.addTag(x.getKey(), x.getValue())));
 
         outboundMessage.setProperty(Constants.TO, "/" + method.getFullMethodName());
-        outboundMessage.setHttpMethod(GrpcConstants.HTTP_METHOD);
+        outboundMessage.setHttpMethod();
         outboundMessage.setHttpVersion("2.0");
         outboundMessage.setHeader(CONTENT_TYPE_KEY, GrpcConstants.CONTENT_TYPE_GRPC);
         outboundMessage.setHeader(TE_KEY, GrpcConstants.TE_TRAILERS);
@@ -174,7 +174,7 @@ public final class ClientCall {
     public void cancel(String message, Throwable cause) {
         if (message == null && cause == null) {
             cause = new CancellationException("Cancelled without a message or cause");
-            log.log(Level.WARNING, "Cancelling without a message or cause is suboptimal", cause);
+            log.error("Cancelling without a message or cause is suboptimal", cause);
         }
         if (cancelCalled) {
             return;
@@ -182,13 +182,17 @@ public final class ClientCall {
         cancelCalled = true;
         if (outboundMessage != null) {
             Status status = Status.Code.CANCELLED.toStatus();
-            if (message != null) {
-                status = status.withDescription(message);
+            if (cause instanceof StatusRuntimeException) {
+                status = ((StatusRuntimeException) cause).getStatus();
             } else {
-                status = status.withDescription("Call cancelled without message");
-            }
-            if (cause != null) {
-                status = status.withCause(cause);
+                if (message != null) {
+                    status = status.withDescription(message);
+                } else {
+                    status = status.withDescription("Call cancelled without message");
+                }
+                if (cause != null) {
+                    status = status.withCause(cause);
+                }
             }
             outboundMessage.complete(status, new DefaultHttpHeaders());
         }

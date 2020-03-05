@@ -53,8 +53,8 @@ public class IterableOperationsTests {
     public void testNegative() {
         Assert.assertEquals(negative.getErrorCount(), 34);
         int index = 0;
-        BAssertUtil.validateError(negative, index++, "undefined function 'forEach'", 6, 5);
-        BAssertUtil.validateError(negative, index++, "undefined function 'map'", 8, 5);
+        BAssertUtil.validateError(negative, index++, "undefined function 'forEach'", 6, 7);
+        BAssertUtil.validateError(negative, index++, "undefined function 'map'", 8, 7);
         BAssertUtil.validateError(negative, index++, "variable assignment is required", 14, 5);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error)) returns" +
                 " (boolean)', found 'function (int,string) returns (boolean)'", 16, 14);
@@ -215,7 +215,7 @@ public class IterableOperationsTests {
         BValue[] returns = BRunUtil.invoke(basic, "xmlTest");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(returns[0].stringValue(), "35");
+        Assert.assertEquals(returns[0].stringValue(), "7");
         Assert.assertEquals(returns[1].stringValue(), "3");
         Assert.assertEquals(returns[2].stringValue(), "<p:city xmlns:p=\"foo\" xmlns:q=\"bar\">NY</p:city>" +
                 "<q:country xmlns:q=\"bar\" xmlns:p=\"foo\">US</q:country>");

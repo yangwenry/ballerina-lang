@@ -23,6 +23,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.exception.LSStdlibCacheException;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.Position;
@@ -45,8 +46,8 @@ import java.nio.file.Paths;
  * Test goto definition language server feature.
  */
 public class DefinitionTest {
-    private Path configRoot;
-    private Path sourceRoot;
+    protected Path configRoot;
+    protected Path sourceRoot;
     private Path projectPath = FileUtils.RES_DIR.resolve("referencesProject");
     protected Gson gson = new Gson();
     protected JsonParser parser = new JsonParser();
@@ -61,7 +62,7 @@ public class DefinitionTest {
     }
 
     @Test(description = "Test goto definitions", dataProvider = "testDataProvider")
-    public void test(String configPath, String configDir) throws IOException {
+    public void test(String configPath, String configDir) throws IOException, LSStdlibCacheException {
         JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve(configDir)
                 .resolve(configPath).toString());
         JsonObject source = configObject.getAsJsonObject("source");
@@ -71,7 +72,7 @@ public class DefinitionTest {
     }
 
     @Test(description = "Test Go to definition between two files in same module", enabled = false)
-    public void testDifferentFiles() throws IOException {
+    public void testDifferentFiles() throws IOException, LSStdlibCacheException {
         log.info("Test textDocument/definition for Two Files in same module");
         JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve("multifile")
                 .resolve("defMultiFile1.json").toString());
@@ -83,7 +84,7 @@ public class DefinitionTest {
     }
 
     @Test(description = "Test Go to definition between two modules", enabled = false)
-    public void testDifferentModule() throws IOException {
+    public void testDifferentModule() throws IOException, LSStdlibCacheException {
         log.info("Test textDocument/definition for two modules");
         JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve("multipkg")
                 .resolve("defMultiPkg1.json").toString());
@@ -94,8 +95,8 @@ public class DefinitionTest {
         this.compareResults(sourcePath, position, configObject, projectPath);
     }
 
-    private void compareResults(Path sourcePath, Position position, JsonObject configObject, Path root)
-            throws IOException {
+    protected void compareResults(Path sourcePath, Position position, JsonObject configObject, Path root)
+            throws IOException, LSStdlibCacheException {
         TestUtil.openDocument(serviceEndpoint, sourcePath);
         String actualStr = TestUtil.getDefinitionResponse(sourcePath.toString(), position, serviceEndpoint);
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
@@ -108,7 +109,7 @@ public class DefinitionTest {
     }
 
     @DataProvider
-    public Object[][] testDataProvider() throws IOException {
+    private Object[][] testDataProvider() throws IOException {
         log.info("Test textDocument/definition for Basic Cases");
         return new Object[][]{
                 // Note: Variable Reference Expressions will be addressed in almost all the test cases
@@ -131,67 +132,73 @@ public class DefinitionTest {
                 {"defFunction10.json", "function"},
                 {"defFunction11.json", "function"},
                 {"defFunction12.json", "function"},
+                {"defFunction13.json", "function"},
+                {"defFunction14.json", "function"},
                 // Following tests covers the type descriptor and Module Type Definitions
                 // Covers Simple Type Descriptor
-//                {"defTypeDesc1.json", "typedescriptor"},
-//                {"defTypeDesc2.json", "typedescriptor"},
+                {"defTypedesc1.json", "typedescriptor"},
+                {"defTypedesc2.json", "typedescriptor"},
                 // Covers List Type Descriptor
-//                {"defTypeDesc3.json", "typedescriptor"},
-//                {"defTypeDesc4.json", "typedescriptor"},
-//                {"defTypeDesc5.json", "typedescriptor"},
-//                {"defTypeDesc6.json", "typedescriptor"},
-//                {"defTypeDesc7.json", "typedescriptor"},
-//                {"defTypeDesc8.json", "typedescriptor"},
+                {"defTypedesc3.json", "typedescriptor"},
+                {"defTypedesc4.json", "typedescriptor"},
+                {"defTypedesc5.json", "typedescriptor"},
+                {"defTypedesc6.json", "typedescriptor"},
+                {"defTypedesc7.json", "typedescriptor"},
+                {"defTypedesc8.json", "typedescriptor"},
                 // Covers Map Type Descriptor
-//                {"defTypeDesc9.json", "typedescriptor"},
-//                {"defTypeDesc10.json", "typedescriptor"},
-//                {"defTypeDesc11.json", "typedescriptor"},
-//                {"defTypeDesc12.json", "typedescriptor"},
-//                {"defTypeDesc13.json", "typedescriptor"},
-//                {"defTypeDesc14.json", "typedescriptor"},
-//                {"defTypeDesc15.json", "typedescriptor"},
-//                {"defTypeDesc16.json", "typedescriptor"},
+                {"defTypedesc9.json", "typedescriptor"},
+                {"defTypedesc10.json", "typedescriptor"},
+                {"defTypedesc11.json", "typedescriptor"},
+                {"defTypedesc12.json", "typedescriptor"},
+                {"defTypedesc13.json", "typedescriptor"},
+                {"defTypedesc14.json", "typedescriptor"},
+                {"defTypedesc15.json", "typedescriptor"},
+                {"defTypedesc16.json", "typedescriptor"},
+                {"defTypedesc53.json", "typedescriptor"},
                 // Covers Function Type Descriptor
-//                {"defTypeDesc17.json", "typedescriptor"},
-//                {"defTypeDesc18.json", "typedescriptor"},
-//                {"defTypeDesc19.json", "typedescriptor"},
-//                {"defTypeDesc20.json", "typedescriptor"},
-//                {"defTypeDesc21.json", "typedescriptor"},
+                {"defTypedesc17.json", "typedescriptor"},
+                {"defTypedesc18.json", "typedescriptor"},
+                {"defTypedesc19.json", "typedescriptor"},
+                {"defTypedesc20.json", "typedescriptor"},
+                {"defTypedesc21.json", "typedescriptor"},
                 // Covers Object Type Descriptor
-//                {"defTypeDesc22.json", "typedescriptor"},
-//                {"defTypeDesc23.json", "typedescriptor"},
-//                {"defTypeDesc24.json", "typedescriptor"},
-//                {"defTypeDesc25.json", "typedescriptor"},
-//                {"defTypeDesc26.json", "typedescriptor"},
-//                {"defTypeDesc27.json", "typedescriptor"},
-//                {"defTypeDesc28.json", "typedescriptor"},
-//                {"defTypeDesc29.json", "typedescriptor"},
-//                {"defTypeDesc30.json", "typedescriptor"},
-//                {"defTypeDesc31.json", "typedescriptor"},
-//                {"defTypeDesc32.json", "typedescriptor"},
-//                {"defTypeDesc33.json", "typedescriptor"},
-//                {"defTypeDesc34.json", "typedescriptor"},
-//                {"defTypeDesc35.json", "typedescriptor"},
-//                {"defTypeDesc36.json", "typedescriptor"},
-//                {"defTypeDesc37.json", "typedescriptor"},
+                {"defTypedesc22.json", "typedescriptor"},
+                {"defTypedesc23.json", "typedescriptor"},
+                {"defTypedesc24.json", "typedescriptor"},
+                {"defTypedesc25.json", "typedescriptor"},
+                {"defTypedesc26.json", "typedescriptor"},
+                {"defTypedesc27.json", "typedescriptor"},
+                {"defTypedesc28.json", "typedescriptor"},
+                {"defTypedesc29.json", "typedescriptor"},
+                {"defTypedesc30.json", "typedescriptor"},
+                {"defTypedesc31.json", "typedescriptor"},
+                {"defTypedesc32.json", "typedescriptor"},
+                {"defTypedesc33.json", "typedescriptor"},
+                {"defTypedesc34.json", "typedescriptor"},
+                {"defTypedesc35.json", "typedescriptor"},
+                {"defTypedesc36.json", "typedescriptor"},
+                {"defTypedesc37.json", "typedescriptor"},
                 // Covers Future type Descriptor
-//                {"defTypeDesc38.json", "typedescriptor"},
-//                {"defTypeDesc39.json", "typedescriptor"},
-//                {"defTypeDesc40.json", "typedescriptor"},
+                {"defTypedesc38.json", "typedescriptor"},
+                {"defTypedesc39.json", "typedescriptor"},
+                {"defTypedesc40.json", "typedescriptor"},
                 // Covers TypeDesc Type Descriptor
-//                {"defTypeDesc41.json", "typedescriptor"},
-//                {"defTypeDesc42.json", "typedescriptor"},
-//                {"defTypeDesc43.json", "typedescriptor"},
+                {"defTypedesc41.json", "typedescriptor"},
+                {"defTypedesc42.json", "typedescriptor"},
+                {"defTypedesc43.json", "typedescriptor"},
                 // Covers Handle Type Descriptor
-//                {"defTypeDesc44.json", "typedescriptor"},
+                {"defTypedesc44.json", "typedescriptor"},
                 // Covers Union Type Descriptor
-//                {"defTypeDesc45.json", "typedescriptor"},
-//                {"defTypeDesc46.json", "typedescriptor"},
-//                {"defTypeDesc47.json", "typedescriptor"},
+                {"defTypedesc45.json", "typedescriptor"},
+                {"defTypedesc46.json", "typedescriptor"},
+                {"defTypedesc47.json", "typedescriptor"},
                 // Optional Type Descriptor
-//                {"defTypeDesc48.json", "typedescriptor"},
-//                {"defTypeDesc49.json", "typedescriptor"},
-//                {"defTypeDesc50.json", "typedescriptor"},
+                {"defTypedesc48.json", "typedescriptor"},
+                {"defTypedesc49.json", "typedescriptor"},
+                {"defTypedesc50.json", "typedescriptor"},
+                // Error Type Descriptor
+                {"defTypedesc51.json", "typedescriptor"},
+                {"defTypedesc52.json", "typedescriptor"},
                 // Covers the Module Level variable declarations
                 {"defModuleVar1.json", "modulevardecl"},
                 {"defModuleVar2.json", "modulevardecl"},
@@ -205,6 +212,9 @@ public class DefinitionTest {
                 // Covers the Mapping Constructor Expression
                 {"defMappingConstructorExpr1.json", "expression"},
                 {"defMappingConstructorExpr2.json", "expression"},
+                {"defMappingConstructorExpr3.json", "expression"},
+                {"defMappingConstructorExpr4.json", "expression"},
+                {"defMappingConstructorExpr5.json", "expression"},
                 {"defServiceConstructorExpr1.json", "expression"},
                 // Covers the String Template Expression
                 {"defStringTemplateExpr1.json", "expression"},
@@ -212,6 +222,8 @@ public class DefinitionTest {
                 {"defNewExpr1.json", "expression"},
                 {"defNewExpr2.json", "expression"},
                 {"defNewExpr3.json", "expression"},
+                {"defNewExpr4.json", "expression"},
+                {"defNewExpr5.json", "expression"},
                 // Covers Function Call Expression
                 {"defFunctionCallExpr1.json", "expression"},
                 {"defFunctionCallExpr2.json", "expression"},
@@ -273,6 +285,14 @@ public class DefinitionTest {
                 {"defCheckPanicExpr1.json", "expression"},
                 // Covers Trap Expression
                 {"defTrapExpr1.json", "expression"},
+                // Covers Error Constructor Expression
+                {"defErrorConstructorExpr1.json", "expression"},
+                {"defErrorConstructorExpr2.json", "expression"},
+                {"defErrorConstructorExpr3.json", "expression"},
+                {"defErrorConstructorExpr4.json", "expression"},
+                {"defErrorConstructorExpr5.json", "expression"},
+                {"defErrorConstructorExpr6.json", "expression"},
+                {"defErrorConstructorExpr7.json", "expression"},
                 // Covers the Start Action
                 {"defStartAction1.json", "action"},
                 {"defStartAction2.json", "action"}, // Remote method call action is also similar
@@ -282,13 +302,13 @@ public class DefinitionTest {
                 {"defWaitAction3.json", "action"},
                 // Covers Worker Send Action
                 {"defSyncSendAction1.json", "action"},
-//                {"defSyncSendAction2.json", "action"},
+                {"defSyncSendAction2.json", "action"},
                 {"defAsyncSendAction1.json", "action"},
-//                {"defAsyncSendAction2.json", "action"},
+                {"defAsyncSendAction2.json", "action"},
                 // Covers Worker Receive Action
-//                {"defReceiveAction1.json", "action"},
+                {"defReceiveAction1.json", "action"},
                 // Covers Flush Action
-//                {"defFlushAction1.json", "action"},
+                {"defFlushAction1.json", "action"},
                 // Covers Remote Action
                 {"defRemoteAction1.json", "action"},
                 {"defRemoteAction2.json", "action"},
@@ -302,6 +322,23 @@ public class DefinitionTest {
                 {"defVarDefStmt6.json", "vardefstatement"},
                 {"defVarDefStmt7.json", "vardefstatement"},
                 {"defVarDefStmt8.json", "vardefstatement"},
+                {"defVarDefStmt26.json", "vardefstatement"},
+                // Covers Variable Definition Statement with Error Binding pattern
+                {"defVarDefStmt12.json", "vardefstatement"},
+                {"defVarDefStmt13.json", "vardefstatement"},
+                {"defVarDefStmt14.json", "vardefstatement"},
+                {"defVarDefStmt15.json", "vardefstatement"},
+                {"defVarDefStmt16.json", "vardefstatement"},
+                {"defVarDefStmt17.json", "vardefstatement"},
+                // TODO: Enable after compiler fix
+//                {"defVarDefStmt18.json", "vardefstatement"},
+//                {"defVarDefStmt19.json", "vardefstatement"},
+//                {"defVarDefStmt20.json", "vardefstatement"},
+//                {"defVarDefStmt21.json", "vardefstatement"},
+//                {"defVarDefStmt22.json", "vardefstatement"},
+//                {"defVarDefStmt23.json", "vardefstatement"},
+//                {"defVarDefStmt24.json", "vardefstatement"},
+//                {"defVarDefStmt25.json", "vardefstatement"},
                 // Covers Variable Definition Statement with final and var
                 {"defVarDefStmt9.json", "vardefstatement"},
                 {"defVarDefStmt10.json", "vardefstatement"},
@@ -316,10 +353,21 @@ public class DefinitionTest {
                 {"defAssignment7.json", "assignment"},
                 {"defAssignment8.json", "assignment"},
                 {"defAssignment9.json", "assignment"},
+                // Covers the destructuring assignment with the binding patterns
                 {"defAssignment10.json", "assignment"},
                 {"defAssignment11.json", "assignment"},
                 {"defAssignment12.json", "assignment"},
                 {"defAssignment13.json", "assignment"},
+                {"defAssignment14.json", "assignment"},
+                {"defAssignment15.json", "assignment"},
+                {"defAssignment16.json", "assignment"},
+                {"defAssignment17.json", "assignment"},
+                {"defAssignment18.json", "assignment"},
+                {"defAssignment19.json", "assignment"},
+                {"defAssignment20.json", "assignment"},
+                {"defAssignment21.json", "assignment"},
+                {"defAssignment22.json", "assignment"},
+                {"defAssignment23.json", "assignment"},
                 // Action Statement is covered in the Action section
                 // Covers the Call Statement
                 {"defCallStmt1.json", "callstatement"},
@@ -352,9 +400,18 @@ public class DefinitionTest {
                 {"defMatchStmt10.json", "matchstmt"},
                 // Covers the Match Statement - Mapping Pattern
                 {"defMatchStmt11.json", "matchstmt"},
+                // Covers the Match Statement Error patterns
+                // Enable following after compiler fix
+//                {"defMatchStmt13.json", "matchstmt"},
+//                {"defMatchStmt14.json", "matchstmt"},
+//                {"defMatchStmt15.json", "matchstmt"},
+//                {"defMatchStmt16.json", "matchstmt"},
+//                {"defMatchStmt17.json", "matchstmt"},
+//                {"defMatchStmt18.json", "matchstmt"},
+//                {"defMatchStmt19.json", "matchstmt"},
+//                {"defMatchStmt20.json", "matchstmt"},
                 //Covers Match statement expression
                 {"defMatchStmt12.json", "matchstmt"},
-                // TODO: Need to cover the match statement error pattern
                 // Covers Foreach Statement
                 {"defForeach1.json", "foreach"},
                 {"defForeach2.json", "foreach"},
@@ -382,7 +439,7 @@ public class DefinitionTest {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
 
-    private void alterExpectedUri(JsonArray expected, Path root) throws IOException {
+    protected void alterExpectedUri(JsonArray expected, Path root) throws IOException, LSStdlibCacheException {
         for (JsonElement jsonElement : expected) {
             JsonObject item = jsonElement.getAsJsonObject();
             String[] uriComponents = item.get("uri").toString().replace("\"", "").split("/");
@@ -395,7 +452,7 @@ public class DefinitionTest {
         }
     }
 
-    private void alterActualUri(JsonArray actual) throws IOException {
+    protected void alterActualUri(JsonArray actual) throws IOException {
         for (JsonElement jsonElement : actual) {
             JsonObject item = jsonElement.getAsJsonObject();
             String uri = item.get("uri").toString().replace("\"", "");

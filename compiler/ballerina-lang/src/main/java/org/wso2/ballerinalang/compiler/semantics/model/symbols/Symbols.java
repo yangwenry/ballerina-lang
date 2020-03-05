@@ -142,7 +142,18 @@ public class Symbols {
                                                PackageID pkgID,
                                                BType type,
                                                BSymbol owner) {
+        if (type != null && type.tag == TypeTags.INVOKABLE) {
+            return createInvokableTypeSymbol(symTag, flags, pkgID, type, owner);
+        }
         return new BTypeSymbol(symTag, flags, name, pkgID, type, owner);
+    }
+
+    public static BInvokableTypeSymbol createInvokableTypeSymbol(int symTag,
+                                                                 int flags,
+                                                                 PackageID pkgID,
+                                                                 BType type,
+                                                                 BSymbol owner) {
+        return new BInvokableTypeSymbol(symTag, flags, pkgID, type, owner);
     }
 
     public static BInvokableSymbol createInvokableSymbol(int kind,
@@ -221,11 +232,5 @@ public class Symbols {
 
     public static boolean isFunctionDeclaration(BSymbol sym) {
         return (sym.flags & Flags.INTERFACE) == Flags.INTERFACE;
-    }
-
-    public static BTypeSymbol createScopeSymbol(Name name, PackageID pkgID, BType type, BSymbol owner) {
-        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.SCOPE, 0, name, pkgID, type, owner);
-        typeSymbol.kind = SymbolKind.SCOPE;
-        return typeSymbol;
     }
 }

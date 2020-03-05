@@ -17,6 +17,8 @@
   */
  package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.values.api.BString;
+
 import java.util.Arrays;
 
 /**
@@ -65,14 +67,32 @@ public class NonBmpStringValue implements StringValue {
     }
 
     @Override
-    public StringValue concat(StringValue str) {
+    public BString concat(BString str) {
         if (str instanceof NonBmpStringValue) {
             NonBmpStringValue other = (NonBmpStringValue) str;
             int[] both = Arrays.copyOf(surrogates, surrogates.length + other.surrogates.length);
             System.arraycopy(other.surrogates, 0, both, surrogates.length, other.surrogates.length);
             return new NonBmpStringValue(this.value + other.value, both);
+        } else if (str instanceof BmpStringValue) {
+            BmpStringValue other = (BmpStringValue) str;
+            return new NonBmpStringValue(this.value + other.getValue(), surrogates);
         } else {
             throw new RuntimeException("not impl yet");
         }
+    }
+
+    @Override
+    public String stringValue() {
+        return value;
+    }
+
+    @Override
+    public BString bStringValue() {
+        return null;
+    }
+
+    @Override
+    public int hashCode() {
+        return value.hashCode();
     }
 }

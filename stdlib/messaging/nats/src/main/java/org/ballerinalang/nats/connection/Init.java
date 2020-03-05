@@ -26,6 +26,8 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
+import org.ballerinalang.nats.observability.NatsMetricsUtil;
+import org.ballerinalang.nats.observability.NatsObservabilityConstants;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -74,61 +76,65 @@ public class Init {
         } else {
             serverUrls = new String[]{urlString};
         }
-        opts.servers(serverUrls);
-
-        // Add connection name.
-        opts.connectionName(connectionConfig.getStringValue(CONNECTION_NAME));
-
-        // Add max reconnect.
-        opts.maxReconnects(Math.toIntExact(connectionConfig.getIntValue(MAX_RECONNECT)));
-
-        // Add reconnect wait.
-        opts.reconnectWait(Duration.ofSeconds(connectionConfig.getIntValue(RECONNECT_WAIT)));
-
-
-        // Add connection timeout.
-        opts.connectionTimeout(Duration.ofSeconds(connectionConfig.getIntValue(CONNECTION_TIMEOUT)));
-
-        // Add ping interval.
-        opts.pingInterval(Duration.ofMinutes(connectionConfig.getIntValue(PING_INTERVAL)));
-
-        // Add max ping out.
-        opts.maxPingsOut(Math.toIntExact(connectionConfig.getIntValue(MAX_PINGS_OUT)));
-
-        // Add inbox prefix.
-        opts.inboxPrefix(connectionConfig.getStringValue(INBOX_PREFIX));
-
-        List<ObjectValue> serviceList = Collections.synchronizedList(new ArrayList<>());
-        // Add NATS connection listener.
-        opts.connectionListener(new DefaultConnectionListener());
-
-        // Add NATS error listener.
-        if (connectionConfig.getBooleanValue(ENABLE_ERROR_LISTENER)) {
-            ErrorListener errorListener = new DefaultErrorListener();
-            opts.errorListener(errorListener);
-        }
-
-        // Add noEcho.
-        if (connectionConfig.getBooleanValue(NO_ECHO)) {
-            opts.noEcho();
-        }
-
-        MapValue secureSocket = connectionConfig.getMapValue(Constants.CONNECTION_CONFIG_SECURE_SOCKET);
-        if (secureSocket != null) {
-            SSLContext sslContext = getSSLContext(secureSocket);
-            opts.sslContext(sslContext);
-        }
-
         try {
+            opts.servers(serverUrls);
+
+            // Add connection name.
+            opts.connectionName(connectionConfig.getStringValue(CONNECTION_NAME));
+
+            // Add max reconnect.
+            opts.maxReconnects(Math.toIntExact(connectionConfig.getIntValue(MAX_RECONNECT)));
+
+            // Add reconnect wait.
+            opts.reconnectWait(Duration.ofSeconds(connectionConfig.getIntValue(RECONNECT_WAIT)));
+
+            // Add connection timeout.
+            opts.connectionTimeout(Duration.ofSeconds(connectionConfig.getIntValue(CONNECTION_TIMEOUT)));
+
+            // Add ping interval.
+            opts.pingInterval(Duration.ofMinutes(connectionConfig.getIntValue(PING_INTERVAL)));
+
+            // Add max ping out.
+            opts.maxPingsOut(Math.toIntExact(connectionConfig.getIntValue(MAX_PINGS_OUT)));
+
+            // Add inbox prefix.
+            opts.inboxPrefix(connectionConfig.getStringValue(INBOX_PREFIX));
+
+            List<ObjectValue> serviceList = Collections.synchronizedList(new ArrayList<>());
+            // Add NATS connection listener.
+            opts.connectionListener(new DefaultConnectionListener());
+
+            // Add NATS error listener.
+            if (connectionConfig.getBooleanValue(ENABLE_ERROR_LISTENER)) {
+                ErrorListener errorListener = new DefaultErrorListener();
+                opts.errorListener(errorListener);
+            }
+
+            // Add noEcho.
+            if (connectionConfig.getBooleanValue(NO_ECHO)) {
+                opts.noEcho();
+            }
+
+            MapValue secureSocket = connectionConfig.getMapValue(Constants.CONNECTION_CONFIG_SECURE_SOCKET);
+            if (secureSocket != null) {
+                SSLContext sslContext = getSSLContext(secureSocket);
+                opts.sslContext(sslContext);
+            }
+
             Connection natsConnection = Nats.connect(opts.build());
             connectionObject.addNativeData(Constants.NATS_CONNECTION, natsConnection);
             connectionObject.addNativeData(Constants.CONNECTED_CLIENTS, new AtomicInteger(0));
             connectionObject.addNativeData(Constants.SERVICE_LIST, serviceList);
-
         } catch (IOException | InterruptedException e) {
+            NatsMetricsUtil.reportError(NatsObservabilityConstants.CONTEXT_CONNECTION,
+                                        NatsObservabilityConstants.ERROR_TYPE_CONNECTION);
             String errorMsg = "Error while setting up a connection. " +
                     (e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
             throw Utils.createNatsError(errorMsg);
+        } catch (IllegalArgumentException e) {
+            NatsMetricsUtil.reportError(NatsObservabilityConstants.CONTEXT_CONNECTION,
+                    NatsObservabilityConstants.ERROR_TYPE_CONNECTION);
+            throw Utils.createNatsError(e.getMessage());
         }
     }
 
@@ -152,7 +158,7 @@ public class Init {
                     }
                 } else {
                     throw Utils.createNatsError(Constants.ERROR_SETTING_UP_SECURED_CONNECTION +
-                            "Keystore path doesn't exist.");
+                                                        "Keystore path doesn't exist.");
                 }
                 keyManagerFactory =
                         KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
@@ -171,7 +177,7 @@ public class Init {
                     }
                 } else {
                     throw Utils.createNatsError(Constants.ERROR_SETTING_UP_SECURED_CONNECTION
-                            + "Truststore path doesn't exist.");
+                                                        + "Truststore path doesn't exist.");
                 }
                 trustManagerFactory =
                         TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
@@ -181,31 +187,31 @@ public class Init {
             String tlsVersion = secureSocket.getStringValue(Constants.CONNECTION_PROTOCOL);
             SSLContext sslContext = SSLContext.getInstance(tlsVersion);
             sslContext.init(keyManagerFactory != null ? keyManagerFactory.getKeyManagers() : null,
-                    trustManagerFactory != null ? trustManagerFactory.getTrustManagers() : null, null);
+                            trustManagerFactory != null ? trustManagerFactory.getTrustManagers() : null, null);
             return sslContext;
         } catch (FileNotFoundException e) {
             throw Utils
                     .createNatsError(Constants.ERROR_SETTING_UP_SECURED_CONNECTION + "File not found error, "
-                            + e.getMessage());
+                                             + e.getMessage());
         } catch (CertificateException e) {
             throw Utils.createNatsError(Constants.ERROR_SETTING_UP_SECURED_CONNECTION + "Certificate error, "
-                    + e.getMessage());
+                                                + e.getMessage());
         } catch (NoSuchAlgorithmException e) {
             throw Utils.createNatsError(Constants.ERROR_SETTING_UP_SECURED_CONNECTION + "Algorithm error, "
-                    + e.getMessage());
+                                                + e.getMessage());
         } catch (IOException e) {
             throw Utils.createNatsError(Constants.ERROR_SETTING_UP_SECURED_CONNECTION + "IO error, "
-                    + e.getMessage());
+                                                + e.getMessage());
         } catch (KeyStoreException e) {
             throw Utils.createNatsError(Constants.ERROR_SETTING_UP_SECURED_CONNECTION + "Keystore error, "
-                    + e.getMessage());
+                                                + e.getMessage());
         } catch (UnrecoverableKeyException e) {
             throw Utils.createNatsError(
                     Constants.ERROR_SETTING_UP_SECURED_CONNECTION + "The key in the keystore cannot be recovered.");
         } catch (KeyManagementException e) {
             throw Utils
                     .createNatsError(Constants.ERROR_SETTING_UP_SECURED_CONNECTION + "Key management error, "
-                            + e.getMessage());
+                                             + e.getMessage());
         }
     }
 }

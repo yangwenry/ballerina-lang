@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.BIRGen;
+import org.wso2.ballerinalang.compiler.desugar.ConstantPropagation;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CompilerPluginRunner;
@@ -59,7 +60,6 @@ import static org.ballerinalang.model.elements.PackageID.TABLE;
 import static org.ballerinalang.model.elements.PackageID.TYPEDESC;
 import static org.ballerinalang.model.elements.PackageID.VALUE;
 import static org.ballerinalang.model.elements.PackageID.XML;
-import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UTILS;
 import static org.wso2.ballerinalang.util.RepoUtils.LOAD_BUILTIN_FROM_SOURCE;
 
 /**
@@ -84,6 +84,7 @@ public class CompilerDriver {
     private final SemanticAnalyzer semAnalyzer;
     private final CodeAnalyzer codeAnalyzer;
     private final TaintAnalyzer taintAnalyzer;
+    private final ConstantPropagation constantPropagation;
     private final DocumentationAnalyzer documentationAnalyzer;
     private final CompilerPluginRunner compilerPluginRunner;
     private final Desugar desugar;
@@ -115,6 +116,7 @@ public class CompilerDriver {
         this.codeAnalyzer = CodeAnalyzer.getInstance(context);
         this.documentationAnalyzer = DocumentationAnalyzer.getInstance(context);
         this.taintAnalyzer = TaintAnalyzer.getInstance(context);
+        this.constantPropagation = ConstantPropagation.getInstance(context);
         this.compilerPluginRunner = CompilerPluginRunner.getInstance(context);
         this.desugar = Desugar.getInstance(context);
         this.birGenerator = BIRGen.getInstance(context);
@@ -129,16 +131,11 @@ public class CompilerDriver {
         return packageNode;
     }
 
-    void loadUtilsPackage() {
-        // Load utils package.
-        symbolTable.utilsPackageSymbol = pkgLoader.loadPackageSymbol(UTILS, null, null);
-    }
-
     void loadLangModules(List<PackageID> pkgIdList) {
         // This logic interested in loading lang modules from source. For others we can load from balo.
         if (!LOAD_BUILTIN_FROM_SOURCE) {
-            symbolTable.langInternalModuleSymbol = pkgLoader.loadPackageSymbol(INTERNAL, null, null);
             symbolTable.langAnnotationModuleSymbol = pkgLoader.loadPackageSymbol(ANNOTATIONS, null, null);
+            symbolTable.langInternalModuleSymbol = pkgLoader.loadPackageSymbol(INTERNAL, null, null);
             symResolver.reloadErrorAndDependentTypes();
             symResolver.reloadIntRangeType();
             symbolTable.langArrayModuleSymbol = pkgLoader.loadPackageSymbol(ARRAY, null, null);
@@ -207,9 +204,11 @@ public class CompilerDriver {
         if (testsEnabled != null && testsEnabled.equals(Constants.SKIP_TESTS)) {
             pkgNode.getTestablePkgs().forEach(testablePackage -> importPkgList.addAll(testablePackage.imports));
         }
-        importPkgList.stream()
-                .filter(pkg -> pkg.symbol != null)
-                .forEach(importPkgNode -> this.compilePackageSymbol(importPkgNode.symbol));
+        for (BLangImportPackage pkg : importPkgList) {
+            if (pkg.symbol != null) {
+                this.compilePackageSymbol(pkg.symbol);
+            }
+        }
         compile(pkgNode);
     }
 
@@ -239,6 +238,11 @@ public class CompilerDriver {
         }
 
         taintAnalyze(pkgNode);
+        if (this.stopCompilation(pkgNode, CompilerPhase.CONSTANT_PROPAGATION)) {
+            return;
+        }
+
+        propagateConstants(pkgNode);
         if (this.stopCompilation(pkgNode, CompilerPhase.COMPILER_PLUGIN)) {
             return;
         }
@@ -249,11 +253,11 @@ public class CompilerDriver {
         }
 
         desugar(pkgNode);
-        if (this.stopCompilation(pkgNode, CompilerPhase.CODE_GEN)) {
+        if (this.stopCompilation(pkgNode, CompilerPhase.BIR_GEN)) {
             return;
         }
 
-        codegen(pkgNode);
+        birGen(pkgNode);
     }
 
     public BLangPackage define(BLangPackage pkgNode) {
@@ -280,6 +284,10 @@ public class CompilerDriver {
         return this.taintAnalyzer.analyze(pkgNode);
     }
 
+    private BLangPackage propagateConstants(BLangPackage pkgNode) {
+        return this.constantPropagation.perform(pkgNode);
+    }
+
     private BLangPackage annotationProcess(BLangPackage pkgNode) {
         return this.compilerPluginRunner.runPlugins(pkgNode);
     }
@@ -288,7 +296,7 @@ public class CompilerDriver {
         return this.desugar.perform(pkgNode);
     }
 
-    public BLangPackage codegen(BLangPackage pkgNode) {
+    public BLangPackage birGen(BLangPackage pkgNode) {
         return this.birGenerator.genBIR(pkgNode);
     }
 
@@ -314,7 +322,7 @@ public class CompilerDriver {
             return null;
         }
 
-        return codegen(desugar(pkg)).symbol;
+        return birGen(desugar(pkg)).symbol;
     }
 
 }
