@@ -57,6 +57,9 @@ export const ActionInvocation: React.StatelessComponent<{
             } else {
                 const { meanExecSuccessCount = 0, meanExecFailCount = 0, meanExecTime = 0 } = metrics;
                 const totalCount = meanExecSuccessCount + meanExecFailCount;
+                if (totalCount === 0) {
+                    return;
+                }
                 const successRate = (meanExecSuccessCount / totalCount) * 100;
                 const errorRate = (meanExecFailCount / totalCount) * 100;
                 const meanTimeMS = (meanExecTime * 1000).toFixed(2);
