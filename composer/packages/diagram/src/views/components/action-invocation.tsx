@@ -1,11 +1,11 @@
-import { ASTNode, ASTUtil } from "@ballerina/ast-model";
-import _ from "lodash";
+import { ASTNode, ASTUtil, ASTKindChecker } from "@ballerina/ast-model";
 import * as React from "react";
 import { Popup } from "semantic-ui-react";
 import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
 // import { getCodePoint } from "../../utils";
 import { StmntViewState } from "../../view-model/index";
+import { InvocationMetricsVisitor } from "../../visitors/invocation-metric-find-visitor";
 import { ArrowHead } from "./arrow-head";
 import { SourceLinkedLabel } from "./source-linked-label";
 
@@ -49,7 +49,15 @@ export const ActionInvocation: React.StatelessComponent<{
         msText.y = errorText.y + config.statement.height + (config.statement.expanded.topMargin / 2) ;
         msText.x = errorText.x - config.statement.expanded.leftMargin - 5;
 
-        const metrics = _.get(astModel, "variable.initialExpression.metrics");
+        let metrics: any;
+        if (astModel) {
+            const findMetricsVisitor = new InvocationMetricsVisitor(astModel as ASTNode);
+            ASTUtil.traversNode(astModel, findMetricsVisitor);
+            const metricsNode = findMetricsVisitor.getMetricsNode();
+            if (metricsNode && ASTKindChecker.isInvocation(metricsNode)) {
+                metrics = (metricsNode as any).metrics;
+            }
+        }
 
         const renderMetrics = () => {
             if (!metrics) {
