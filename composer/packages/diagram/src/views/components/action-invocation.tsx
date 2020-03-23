@@ -1,4 +1,4 @@
-import { ASTNode, ASTUtil, ASTKindChecker } from "@ballerina/ast-model";
+import { ASTKindChecker, ASTNode, ASTUtil } from "@ballerina/ast-model";
 import * as React from "react";
 import { Popup } from "semantic-ui-react";
 import { DiagramConfig } from "../../config/default";
