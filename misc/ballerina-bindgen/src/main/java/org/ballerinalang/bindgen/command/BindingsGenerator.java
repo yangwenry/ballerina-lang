@@ -25,7 +25,6 @@ import java.io.PrintStream;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -47,6 +46,7 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.BINDINGS_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.USER_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.UTILS_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.createDirectory;
+import static org.ballerinalang.bindgen.utils.BindgenUtils.getExistingBindings;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getClassLoader;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getUpdatedConstantsList;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isPublicClass;
@@ -64,11 +64,11 @@ public class BindingsGenerator {
     private Path utilsDirPath;
     private Set<String> classPaths = new HashSet<>();
     private Set<String> classNames = new HashSet<>();
+    private static boolean directJavaClass = true;
     private static final PrintStream errStream = System.err;
     private static final PrintStream outStream = System.out;
     private static Path userDir = Paths.get(System.getProperty(USER_DIR));
 
-    public static boolean directJavaClass = true;
     public static Set<String> allClasses = new HashSet<>();
     public static Set<String> classListForLooping = new HashSet<>();
     public static Set<String> allJavaClasses = new HashSet<>();
@@ -107,8 +107,11 @@ public class BindingsGenerator {
             while (!classListForLooping.isEmpty()) {
                 Set<String> newSet = new HashSet<>(classListForLooping);
                 newSet.removeAll(classNames);
+                List existingBindings = getExistingBindings(newSet, modulePath.toFile());
+                newSet.removeAll(existingBindings);
                 allJavaClasses.addAll(newSet);
                 classListForLooping.clear();
+
                 generateBindings(newSet, classLoader, dependenciesPath);
             }
             createDirectory(utilsDirPath.toString());
@@ -173,9 +176,9 @@ public class BindingsGenerator {
                     Class classInstance = classLoader.loadClass(c);
                     if (classInstance != null && isPublicClass(classInstance)) {
                         JClass jClass = new JClass(classInstance);
-                        String outputFile = Paths.get(modulePath.toString(), jClass.packageName).toString();
+                        String outputFile = Paths.get(modulePath.toString(), jClass.getPackageName()).toString();
                         createDirectory(outputFile);
-                        String filePath = Paths.get(outputFile, jClass.shortClassName + BAL_EXTENSION).toString();
+                        String filePath = Paths.get(outputFile, jClass.getShortClassName() + BAL_EXTENSION).toString();
                         writeOutputFile(jClass, DEFAULT_TEMPLATE_DIR, BBGEN_CLASS_TEMPLATE_NAME, filePath, false);
                         outStream.println("\t" + c);
                     }
@@ -186,5 +189,10 @@ public class BindingsGenerator {
                 throw new BindgenException("Error while generating Ballerina bridge code: " + e);
             }
         }
+    }
+
+    public static boolean isDirectJavaClass() {
+
+        return directJavaClass;
     }
 }
