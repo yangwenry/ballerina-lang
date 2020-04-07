@@ -146,7 +146,6 @@ import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -474,7 +473,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv recordEnv = SymbolEnv.createTypeEnv(recordTypeNode, recordTypeNode.symbol.scope, env);
         recordTypeNode.fields.forEach(field -> analyzeDef(field, recordEnv));
         validateDefaultable(recordTypeNode);
-        recordTypeNode.analyzed = true;
     }
 
     @Override
@@ -580,14 +578,35 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             // This is a variable declared in a function, let expression, an action or a resource
             // If the variable is parameter then the variable symbol is already defined
             if (varNode.symbol == null) {
-                analyzeVarNode(varNode, env, AttachPoint.Point.VAR);
+                symbolEnter.defineNode(varNode, env);
+
+                // When 'var' is used, the typeNode is null
+                if (varNode.typeNode != null && varNode.typeNode.getKind() == NodeKind.RECORD_TYPE) {
+                    analyzeDef(varNode.typeNode, env);
+                }
+
+                varNode.annAttachments.forEach(annotationAttachment -> {
+                    annotationAttachment.attachPoints.add(AttachPoint.Point.VAR);
+                    annotationAttachment.accept(this);
+                });
             } else {
-                analyzeVarNode(varNode, env, AttachPoint.Point.PARAMETER);
+                varNode.annAttachments.forEach(annotationAttachment -> {
+                    annotationAttachment.attachPoints.add(AttachPoint.Point.PARAMETER);
+                    annotationAttachment.accept(this);
+                });
             }
         } else if ((ownerSymTag & SymTag.OBJECT) == SymTag.OBJECT) {
-            analyzeVarNode(varNode, env, AttachPoint.Point.OBJECT_FIELD, AttachPoint.Point.FIELD);
+            for (BLangAnnotationAttachment annotationAttachment : varNode.annAttachments) {
+                annotationAttachment.attachPoints.add(AttachPoint.Point.OBJECT_FIELD);
+                annotationAttachment.attachPoints.add(AttachPoint.Point.FIELD);
+                annotationAttachment.accept(this);
+            }
         } else if ((ownerSymTag & SymTag.RECORD) == SymTag.RECORD) {
-            analyzeVarNode(varNode, env, AttachPoint.Point.RECORD_FIELD, AttachPoint.Point.FIELD);
+            for (BLangAnnotationAttachment annotationAttachment : varNode.annAttachments) {
+                annotationAttachment.attachPoints.add(AttachPoint.Point.RECORD_FIELD);
+                annotationAttachment.attachPoints.add(AttachPoint.Point.FIELD);
+                annotationAttachment.accept(this);
+            }
         } else {
             varNode.annAttachments.forEach(annotationAttachment -> {
                 if (Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER)) {
@@ -633,25 +652,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         transferForkFlag(varNode);
-    }
-
-    private void analyzeVarNode(BLangSimpleVariable varNode, SymbolEnv env, AttachPoint.Point... attachPoints) {
-        if (varNode.symbol == null) {
-            symbolEnter.defineNode(varNode, env);
-        }
-
-        // When 'var' is used, the typeNode is null. Need to analyze the record type node here if it's a locally
-        // defined record type.
-        if (varNode.typeNode != null && varNode.typeNode.getKind() == NodeKind.RECORD_TYPE &&
-                !((BLangRecordTypeNode) varNode.typeNode).analyzed) {
-            analyzeDef(varNode.typeNode, env);
-        }
-
-        List<AttachPoint.Point> attachPointsList = Arrays.asList(attachPoints);
-        for (BLangAnnotationAttachment annotationAttachment : varNode.annAttachments) {
-            annotationAttachment.attachPoints.addAll(attachPointsList);
-            annotationAttachment.accept(this);
-        }
     }
 
     private void transferForkFlag(BLangSimpleVariable varNode) {

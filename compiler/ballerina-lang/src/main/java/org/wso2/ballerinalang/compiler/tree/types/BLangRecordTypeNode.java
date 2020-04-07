@@ -32,7 +32,6 @@ public class BLangRecordTypeNode extends BLangStructureTypeNode implements Recor
 
     public boolean sealed;
     public BLangType restFieldType;
-    public boolean analyzed;
 
     public BLangRecordTypeNode() {
     }
