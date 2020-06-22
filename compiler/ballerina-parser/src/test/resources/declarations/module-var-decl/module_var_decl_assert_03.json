@@ -24,10 +24,27 @@
               ]
             },
             {
-              "kind": "LISTENER_KEYWORD"
+              "kind": "LISTENER_KEYWORD",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
-              "kind": "STRING_KEYWORD"
+              "kind": "STRING_TYPE_DESC",
+              "children": [
+                {
+                  "kind": "STRING_KEYWORD",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                }
+              ]
             },
             {
               "kind": "IDENTIFIER_TOKEN",
@@ -42,15 +59,27 @@
               ]
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "isMissing": true,
+              "kind": "SIMPLE_NAME_REFERENCE",
               "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_MISSING_IDENTIFIER"
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_IDENTIFIER"
+                  ]
+                }
               ]
             },
             {
-              "kind": "SEMICOLON_TOKEN"
+              "kind": "SEMICOLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
             }
           ]
         },
@@ -68,10 +97,33 @@
               ]
             },
             {
-              "kind": "CONST_KEYWORD"
+              "kind": "CONST_KEYWORD",
+              "leadingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ],
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
-              "kind": "STRING_KEYWORD"
+              "kind": "STRING_TYPE_DESC",
+              "children": [
+                {
+                  "kind": "STRING_KEYWORD",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                }
+              ]
             },
             {
               "kind": "IDENTIFIER_TOKEN",
@@ -86,22 +138,40 @@
               ]
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "isMissing": true,
+              "kind": "SIMPLE_NAME_REFERENCE",
               "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_MISSING_IDENTIFIER"
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_IDENTIFIER"
+                  ]
+                }
               ]
             },
             {
-              "kind": "SEMICOLON_TOKEN"
+              "kind": "SEMICOLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
             }
           ]
         }
       ]
     },
     {
-      "kind": "EOF_TOKEN"
+      "kind": "EOF_TOKEN",
+      "leadingMinutiae": [
+        {
+          "kind": "END_OF_LINE_MINUTIAE",
+          "value": "\n"
+        }
+      ]
     }
   ]
 }

@@ -75,4 +75,9 @@ public class STMinutiae extends STNode {
     public String toString() {
         return text;
     }
+
+    @Override
+    public void writeTo(StringBuilder builder) {
+        builder.append(text);
+    }
 }

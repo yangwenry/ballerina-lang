@@ -7,6 +7,12 @@
       "hasDiagnostics": true,
       "diagnostics": [
         "ERROR_MISSING_LET_VARIABLE_DECLARATION"
+      ],
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
       ]
     },
     {
@@ -14,11 +20,22 @@
       "children": []
     },
     {
-      "kind": "IN_KEYWORD"
+      "kind": "IN_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "E2"
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "E2"
+        }
+      ]
     }
   ]
 }

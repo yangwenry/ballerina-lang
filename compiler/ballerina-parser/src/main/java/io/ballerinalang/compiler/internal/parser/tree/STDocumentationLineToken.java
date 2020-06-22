@@ -74,4 +74,11 @@ public class STDocumentationLineToken extends STToken {
     public String toString() {
         return leadingMinutiae + text + trailingMinutiae;
     }
+
+    @Override
+    public void writeTo(StringBuilder builder) {
+        leadingMinutiae.writeTo(builder);
+        builder.append(text);
+        trailingMinutiae.writeTo(builder);
+    }
 }

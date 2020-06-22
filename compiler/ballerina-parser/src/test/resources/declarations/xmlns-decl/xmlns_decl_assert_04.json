@@ -15,11 +15,28 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "XMLNS_KEYWORD"
+              "kind": "XMLNS_KEYWORD",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "STRING_LITERAL",
-              "value": "http://ballerinalang.org/ns1"
+              "children": [
+                {
+                  "kind": "STRING_LITERAL",
+                  "value": "http://ballerinalang.org/ns1",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                }
+              ]
             },
             {
               "kind": "AS_KEYWORD",
@@ -34,7 +51,13 @@
               "value": "ns1"
             },
             {
-              "kind": "SEMICOLON_TOKEN"
+              "kind": "SEMICOLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
             }
           ]
         }

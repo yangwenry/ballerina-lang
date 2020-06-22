@@ -53,6 +53,11 @@
                     "isOptional": true
                 },
                 {
+                    "name": "transactionalKeyword",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
                     "name": "functionKeyword",
                     "type": "Token"
                 },
@@ -2059,6 +2064,22 @@
             ]
         },
         {
+            "name": "TypedescTypeDescriptorNode",
+            "base": "TypeDescriptorNode",
+            "kind": "TYPEDESC_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "typedescKeywordToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "typedescTypeParamsNode",
+                    "type": "TypeParameterNode",
+                    "isOptional": true
+                }
+            ]
+        },
+        {
             "name": "LetExpressionNode",
             "base": "ExpressionNode",
             "kind": "LET_EXPRESSION",
@@ -2079,6 +2100,22 @@
                 {
                     "name": "expression",
                     "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
+            "name": "XmlTypeDescriptorNode",
+            "base": "TypeDescriptorNode",
+            "kind": "XML_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "xmlKeywordToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "xmlTypeParamsNode",
+                    "type": "TypeParameterNode",
+                    "isOptional": true
                 }
             ]
         },
@@ -2644,12 +2681,13 @@
             "kind": "QUERY_CONSTRUCT_TYPE",
             "attributes": [
                 {
-                    "name": "tableKeyword",
+                    "name": "keyword",
                     "type": "Token"
                 },
                 {
                     "name": "keySpecifier",
-                    "type": "KeySpecifierNode"
+                    "type": "KeySpecifierNode",
+                    "isOptional": true
                 }
             ]
         },
@@ -2745,7 +2783,8 @@
             "attributes": [
                 {
                     "name": "queryConstructType",
-                    "type": "QueryConstructTypeNode"
+                    "type": "QueryConstructTypeNode",
+                    "isOptional": true
                 },
                 {
                     "name": "queryPipeline",
@@ -2754,6 +2793,16 @@
                 {
                     "name": "selectClause",
                     "type": "SelectClauseNode"
+                },
+                {
+                    "name": "onConflictClause",
+                    "type": "OnConflictClauseNode",
+                    "isOptional": true
+                },
+                {
+                    "name": "limitClause",
+                    "type": "LimitClauseNode",
+                    "isOptional": true
                 }
             ]
         },
@@ -3022,7 +3071,7 @@
         },
         {
             "name": "RestBindingPatternNode",
-            "base": "Node",
+            "base": "BindingPatternNode",
             "kind": "REST_BINDING_PATTERN",
             "attributes": [
                 {
@@ -3199,7 +3248,7 @@
             "attributes": [
                 {
                     "name": "fieldName",
-                    "type": "NameReferenceNode"
+                    "type": "SimpleNameReferenceNode"
                 },
                 {
                     "name": "colon",
@@ -3246,6 +3295,11 @@
                 {
                     "name": "blockStatement",
                     "type": "BlockStatementNode"
+                },
+                {
+                    "name": "limitClause",
+                    "type": "LimitClauseNode",
+                    "isOptional": true
                 }
             ]
         },
@@ -3495,7 +3549,8 @@
                 },
                 {
                     "name": "content",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "endBacktick",
@@ -3608,7 +3663,7 @@
                 {
                     "name": "matchClauses",
                     "type": "MatchClauseNode",
-                    "occurrences": "MULTIPLE_SEPARATED"
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "closeBrace",
@@ -3676,6 +3731,11 @@
                     "isOptional": true
                 },
                 {
+                    "name": "transactionalKeyword",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
                     "name": "functionKeyword",
                     "type": "Token"
                 },
@@ -3690,6 +3750,98 @@
                 {
                     "name": "functionBody",
                     "type": "FunctionBodyNode"
+                }
+            ]
+        },
+        {
+            "name": "DistinctTypeDescriptorNode",
+            "base": "TypeDescriptorNode",
+            "kind": "DISTINCT_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "distinctKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "typeDescriptor",
+                    "type": "TypeDescriptorNode"
+                }
+            ]
+        },
+        {
+            "name": "OnConflictClauseNode",
+            "base": "ClauseNode",
+            "kind": "ON_CONFLICT_CLAUSE",
+            "attributes": [
+                {
+                    "name": "onKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "conflictKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
+            "name": "LimitClauseNode",
+            "base": "ClauseNode",
+            "kind": "LIMIT_CLAUSE",
+            "attributes": [
+                {
+                    "name": "limitKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
+            "name": "JoinClauseNode",
+            "base": "ClauseNode",
+            "kind": "JOIN_CLAUSE",
+            "attributes": [
+                {
+                    "name": "outerKeyword",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
+                    "name": "joinKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "typedBindingPattern",
+                    "type": "TypedBindingPatternNode"
+                },
+                {
+                    "name": "inKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
+            "name": "OnClauseNode",
+            "base": "ClauseNode",
+            "kind": "ON_CLAUSE",
+            "attributes": [
+                {
+                    "name": "onKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
                 }
             ]
         }

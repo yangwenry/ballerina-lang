@@ -115,4 +115,11 @@ public class STToken extends STNode {
     public String toString() {
         return leadingMinutiae + kind.stringValue() + trailingMinutiae;
     }
+
+    @Override
+    public void writeTo(StringBuilder builder) {
+        leadingMinutiae.writeTo(builder);
+        builder.append(kind.stringValue());
+        trailingMinutiae.writeTo(builder);
+    }
 }

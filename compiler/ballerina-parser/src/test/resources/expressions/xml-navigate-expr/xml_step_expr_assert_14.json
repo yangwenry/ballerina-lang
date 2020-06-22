@@ -11,8 +11,19 @@
               "kind": "XML_STEP_EXPRESSION",
               "children": [
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "a"
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "a",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   "kind": "XML_NAME_PATTERN_CHAIN",
@@ -42,7 +53,13 @@
                       ]
                     },
                     {
-                      "kind": "GT_TOKEN"
+                      "kind": "GT_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 }
@@ -58,22 +75,38 @@
                   "kind": "BINARY_EXPRESSION",
                   "children": [
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "d"
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "d"
+                        }
+                      ]
                     },
                     {
                       "kind": "GT_TOKEN"
                     },
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "e"
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "e"
+                        }
+                      ]
                     }
                   ]
                 }
               ]
             },
             {
-              "kind": "CLOSE_BRACKET_TOKEN"
+              "kind": "CLOSE_BRACKET_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             }
           ]
         },
@@ -84,13 +117,24 @@
           "kind": "LIST",
           "children": [
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "f"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "f"
+                }
+              ]
             }
           ]
         },
         {
-          "kind": "CLOSE_BRACKET_TOKEN"
+          "kind": "CLOSE_BRACKET_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         }
       ]
     },

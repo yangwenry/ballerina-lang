@@ -21,12 +21,23 @@
             },
             {
               "kind": "STRING_LITERAL",
-              "value": "John"
+              "children": [
+                {
+                  "kind": "STRING_LITERAL",
+                  "value": "John"
+                }
+              ]
             }
           ]
         },
         {
-          "kind": "COMMA_TOKEN"
+          "kind": "COMMA_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         },
         {
           "kind": "SPECIFIC_FIELD",
@@ -37,7 +48,13 @@
               "value": "parent"
             },
             {
-              "kind": "COLON_TOKEN"
+              "kind": "COLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "MAPPING_CONSTRUCTOR",
@@ -57,16 +74,33 @@
                           "value": "name"
                         },
                         {
-                          "kind": "COLON_TOKEN"
+                          "kind": "COLON_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         },
                         {
                           "kind": "STRING_LITERAL",
-                          "value": "Doe"
+                          "children": [
+                            {
+                              "kind": "STRING_LITERAL",
+                              "value": "Doe"
+                            }
+                          ]
                         }
                       ]
                     },
                     {
-                      "kind": "COMMA_TOKEN"
+                      "kind": "COMMA_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     },
                     {
                       "kind": "SPECIFIC_FIELD",
@@ -80,7 +114,12 @@
                         },
                         {
                           "kind": "DECIMAL_INTEGER_LITERAL",
-                          "value": "20"
+                          "children": [
+                            {
+                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "value": "20"
+                            }
+                          ]
                         }
                       ]
                     }

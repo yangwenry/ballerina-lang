@@ -4,17 +4,34 @@
   "children": [
     {
       "kind": "DECIMAL_INTEGER_LITERAL",
-      "value": "3"
+      "children": [
+        {
+          "kind": "DECIMAL_INTEGER_LITERAL",
+          "value": "3",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        }
+      ]
     },
     {
       "kind": "IS_KEYWORD"
     },
     {
       "kind": "TYPE_DESC",
-      "isMissing": true,
       "hasDiagnostics": true,
-      "diagnostics": [
-        "ERROR_MISSING_TYPE_DESC"
+      "children": [
+        {
+          "kind": "TYPE_DESC",
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_TYPE_DESC"
+          ]
+        }
       ]
     }
   ]

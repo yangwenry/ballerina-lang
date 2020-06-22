@@ -20,7 +20,13 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "FUTURE_KEYWORD"
+              "kind": "FUTURE_KEYWORD",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "LT_TOKEN",
@@ -31,10 +37,21 @@
               ]
             },
             {
-              "kind": "INT_KEYWORD"
+              "kind": "INT_TYPE_DESC",
+              "children": [
+                {
+                  "kind": "INT_KEYWORD"
+                }
+              ]
             },
             {
-              "kind": "GT_TOKEN"
+              "kind": "GT_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             }
           ]
         },

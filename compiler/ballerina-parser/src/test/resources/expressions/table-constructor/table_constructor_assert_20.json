@@ -3,7 +3,13 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "TABLE_KEYWORD"
+      "kind": "TABLE_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "OPEN_BRACKET_TOKEN"
@@ -32,8 +38,13 @@
                       "kind": "COLON_TOKEN"
                     },
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "b"
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "b"
+                        }
+                      ]
                     }
                   ]
                 }
@@ -45,7 +56,13 @@
           ]
         },
         {
-          "kind": "COMMA_TOKEN"
+          "kind": "COMMA_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         },
         {
           "kind": "MAPPING_CONSTRUCTOR",

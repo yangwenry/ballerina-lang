@@ -93,6 +93,11 @@ public enum SyntaxKind {
     BASE16_KEYWORD(239, "base16"),
     BASE64_KEYWORD(240, "base64"),
     MATCH_KEYWORD(241, "match"),
+    CONFLICT_KEYWORD(242, "conflict"),
+    LIMIT_KEYWORD(243, "limit"),
+    JOIN_KEYWORD(244, "join"),
+    OUTER_KEYWORD(245, "outer"),
+    EQUALS_KEYWORD(246, "equals"),
 
     // Type keywords
     INT_KEYWORD(250, "int"),
@@ -177,6 +182,8 @@ public enum SyntaxKind {
     SLASH_LT_TOKEN(586, "/<"),
     DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN(587, "/**/<"),
     SLASH_ASTERISK_TOKEN(588, "/*"),
+    DOUBLE_GT_TOKEN(589, ">>"),
+    TRIPPLE_GT_TOKEN(590, ">>>"),
 
     IDENTIFIER_TOKEN(1000),
     STRING_LITERAL(1001),
@@ -193,6 +200,9 @@ public enum SyntaxKind {
     COMMENT_MINUTIAE(1502),
     DOCUMENTATION_LINE(1503),
     INVALID_NODE_MINUTIAE(1504),
+
+    // Invalid nodes
+    INVALID_TOKEN(1600),
 
     // module-level declarations
     IMPORT_DECLARATION(2000),
@@ -230,6 +240,7 @@ public enum SyntaxKind {
     RETRY_STATEMENT(1220),
     XML_NAMESPACE_DECLARATION(1221),
     MATCH_STATEMENT(1222),
+    INVALID_EXPRESSION_STATEMENT(1223),
 
     // Expressions
     BINARY_EXPRESSION(1300),
@@ -304,6 +315,8 @@ public enum SyntaxKind {
     INTERSECTION_TYPE_DESC(2030),
     SINGLETON_TYPE_DESC(2031),
     TYPE_REFERENCE_TYPE_DESC(2032),
+    TYPEDESC_TYPE_DESC(2033),
+
 
     // Actions
     REMOTE_METHOD_CALL_ACTION(2500),
@@ -377,8 +390,6 @@ public enum SyntaxKind {
     LIST_BINDING_PATTERN(3054),
     RECEIVE_FIELDS(3055),
     REST_TYPE(3056),
-    DOUBLE_GT_TOKEN(3056, ">>"),
-    TRIPPLE_GT_TOKEN(3057, ">>>"),
     WAIT_FIELDS_LIST(3058),
     WAIT_FIELD(3059),
     ENUM_MEMBER(3060),
@@ -392,6 +403,10 @@ public enum SyntaxKind {
     MATCH_CLAUSE(3068),
     MATCH_GUARD(3069),
     OBJECT_METHOD_DEFINITION(3070),
+    ON_CONFLICT_CLAUSE(3071),
+    LIMIT_CLAUSE(3072),
+    JOIN_CLAUSE(3073),
+    ON_CLAUSE(3074),
 
     // XML
     XML_ELEMENT(4000),

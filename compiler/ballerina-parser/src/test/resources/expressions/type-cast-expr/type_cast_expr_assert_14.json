@@ -18,8 +18,13 @@
                   "kind": "AT_TOKEN"
                 },
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "foo"
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "foo"
+                    }
+                  ]
                 },
                 {
                   "kind": "MAPPING_CONSTRUCTOR",
@@ -32,7 +37,13 @@
                       "children": []
                     },
                     {
-                      "kind": "CLOSE_BRACE_TOKEN"
+                      "kind": "CLOSE_BRACE_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 }
@@ -41,8 +52,19 @@
           ]
         },
         {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "b"
+          "kind": "SIMPLE_NAME_REFERENCE",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "b",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            }
+          ]
         }
       ]
     },
@@ -55,8 +77,13 @@
       ]
     },
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "b"
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "b"
+        }
+      ]
     }
   ]
 }

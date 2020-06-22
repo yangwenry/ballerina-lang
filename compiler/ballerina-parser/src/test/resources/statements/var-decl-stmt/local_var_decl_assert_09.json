@@ -11,8 +11,19 @@
       "hasDiagnostics": true,
       "children": [
         {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "Foo"
+          "kind": "SIMPLE_NAME_REFERENCE",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "Foo",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            }
+          ]
         },
         {
           "kind": "CAPTURE_BINDING_PATTERN",

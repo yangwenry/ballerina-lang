@@ -21,12 +21,23 @@
             },
             {
               "kind": "STRING_LITERAL",
-              "value": "John"
+              "children": [
+                {
+                  "kind": "STRING_LITERAL",
+                  "value": "John"
+                }
+              ]
             }
           ]
         },
         {
-          "kind": "COMMA_TOKEN"
+          "kind": "COMMA_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         },
         {
           "kind": "SPECIFIC_FIELD",
@@ -45,7 +56,12 @@
             },
             {
               "kind": "DECIMAL_INTEGER_LITERAL",
-              "value": "4"
+              "children": [
+                {
+                  "kind": "DECIMAL_INTEGER_LITERAL",
+                  "value": "4"
+                }
+              ]
             }
           ]
         }

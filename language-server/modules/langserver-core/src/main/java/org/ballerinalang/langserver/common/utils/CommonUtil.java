@@ -151,6 +151,8 @@ public class CommonUtil {
 
     public static final Path LS_STDLIB_CACHE_DIR = TEMP_DIR.resolve("ls_stdlib_cache").resolve(SDK_VERSION);
 
+    public static final Path LS_CONNECTOR_CACHE_DIR = TEMP_DIR.resolve("ls_connector_cache").resolve(SDK_VERSION);
+
     static {
         BALLERINA_HOME = System.getProperty("ballerina.home");
         BALLERINA_CMD = BALLERINA_HOME + File.separator + "bin" + File.separator + "ballerina" +
@@ -568,6 +570,23 @@ public class CommonUtil {
         completionItem.setSortText(Priority.PRIORITY110.toString());
 
         return new StaticCompletionItem(context, completionItem);
+    }
+
+    /**
+     * Get the completion Item for the error type.
+     * 
+     * @param context LS Operation context
+     * @return {@link LSCompletionItem} generated for error type
+     */
+    public static LSCompletionItem getErrorTypeCompletionItem(LSContext context) {
+        CompletionItem errorTypeCItem = new CompletionItem();
+        errorTypeCItem.setInsertText(ItemResolverConstants.ERROR);
+        errorTypeCItem.setLabel(ItemResolverConstants.ERROR);
+        errorTypeCItem.setDetail(ItemResolverConstants.ERROR);
+        errorTypeCItem.setInsertTextFormat(InsertTextFormat.Snippet);
+        errorTypeCItem.setKind(CompletionItemKind.Event);
+        
+        return new StaticCompletionItem(context, errorTypeCItem);
     }
 
     /**
@@ -1081,8 +1100,8 @@ public class CommonUtil {
      */
     public static Predicate<BLangImportPackage> importInCurrentFilePredicate(LSContext ctx) {
         String currentFile = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-        return importPkg -> importPkg.pos.getSource().cUnitName.replace("/", FILE_SEPARATOR).equals(currentFile)
-                && importPkg.getWS() != null;
+        //TODO: Removed `importPkg.getWS() != null` check, need to find another way to skip streaming imports
+        return importPkg -> importPkg.pos.getSource().cUnitName.replace("/", FILE_SEPARATOR).equals(currentFile);
     }
 
     /**

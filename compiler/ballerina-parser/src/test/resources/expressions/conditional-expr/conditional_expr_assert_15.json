@@ -15,21 +15,39 @@
           "children": [
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "foo"
+              "value": "foo",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
-              "kind": "COLON_TOKEN"
+              "kind": "COLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "CONDITIONAL_EXPRESSION",
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "isMissing": true,
+                  "kind": "SIMPLE_NAME_REFERENCE",
                   "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_MISSING_IDENTIFIER"
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_IDENTIFIER"
+                      ]
+                    }
                   ]
                 },
                 {
@@ -42,8 +60,13 @@
                       "kind": "OPEN_PAREN_TOKEN"
                     },
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "b"
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "b"
+                        }
+                      ]
                     },
                     {
                       "kind": "CLOSE_PAREN_TOKEN"
@@ -54,8 +77,13 @@
                   "kind": "COLON_TOKEN"
                 },
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "c"
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "c"
+                    }
+                  ]
                 }
               ]
             }

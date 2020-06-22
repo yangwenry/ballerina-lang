@@ -15,7 +15,13 @@
           "children": [
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "a"
+              "value": "a",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "COLON_TOKEN",
@@ -26,13 +32,24 @@
               ]
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "b"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "b"
+                }
+              ]
             }
           ]
         },
         {
-          "kind": "COMMA_TOKEN"
+          "kind": "COMMA_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         },
         {
           "kind": "SPECIFIC_FIELD",
@@ -40,7 +57,13 @@
           "children": [
             {
               "kind": "STRING_LITERAL",
-              "value": "c"
+              "value": "c",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "COLON_TOKEN",
@@ -51,8 +74,13 @@
               ]
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "d"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "d"
+                }
+              ]
             }
           ]
         }

@@ -3,26 +3,60 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "a"
-    },
-    {
-      "kind": "QUESTION_MARK_TOKEN"
-    },
-    {
-      "kind": "IDENTIFIER_TOKEN",
-      "isMissing": true,
-      "hasDiagnostics": true,
-      "diagnostics": [
-        "ERROR_MISSING_IDENTIFIER"
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "a",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        }
       ]
     },
     {
-      "kind": "COLON_TOKEN"
+      "kind": "QUESTION_MARK_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": "  "
+        }
+      ]
     },
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "c"
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_IDENTIFIER"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "COLON_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "c"
+        }
+      ]
     }
   ]
 }

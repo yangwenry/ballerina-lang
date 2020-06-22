@@ -17,8 +17,19 @@
               "kind": "OPEN_BRACKET_TOKEN"
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "key1"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "key1",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                }
+              ]
             },
             {
               "kind": "CLOSE_BRACKET_TOKEN",
@@ -37,8 +48,13 @@
               ]
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "value1"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "value1"
+                }
+              ]
             }
           ]
         }

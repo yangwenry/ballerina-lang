@@ -2,15 +2,32 @@
   "kind": "BINARY_EXPRESSION",
   "children": [
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "x"
-    },
-    {
-      "kind": "PLUS_TOKEN"
-    },
-    {
       "kind": "BINARY_EXPRESSION",
       "children": [
+        {
+          "kind": "SIMPLE_NAME_REFERENCE",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "x",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "PLUS_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
         {
           "kind": "XML_FILTER_EXPRESSION",
           "children": [
@@ -21,8 +38,13 @@
                   "kind": "XML_FILTER_EXPRESSION",
                   "children": [
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a"
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a"
+                        }
+                      ]
                     },
                     {
                       "kind": "XML_NAME_PATTERN_CHAIN",
@@ -124,15 +146,32 @@
                   ]
                 },
                 {
-                  "kind": "GT_TOKEN"
+                  "kind": "GT_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             }
           ]
-        },
+        }
+      ]
+    },
+    {
+      "kind": "PLUS_TOKEN",
+      "trailingMinutiae": [
         {
-          "kind": "PLUS_TOKEN"
-        },
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
         {
           "kind": "IDENTIFIER_TOKEN",
           "value": "y"

@@ -12,14 +12,32 @@
       ]
     },
     {
-      "kind": "SERVICE_KEYWORD"
+      "kind": "SERVICE_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "IDENTIFIER_TOKEN",
-      "value": "echoService"
+      "value": "echoService",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
-      "kind": "ON_KEYWORD"
+      "kind": "ON_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "LIST",
@@ -28,8 +46,19 @@
           "kind": "EXPRESSION_LIST_ITEM",
           "children": [
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "someListner"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "someListner",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                }
+              ]
             }
           ]
         }
@@ -40,7 +69,13 @@
       "hasDiagnostics": true,
       "children": [
         {
-          "kind": "OPEN_BRACE_TOKEN"
+          "kind": "OPEN_BRACE_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "END_OF_LINE_MINUTIAE",
+              "value": "\n"
+            }
+          ]
         },
         {
           "kind": "LIST",
@@ -60,7 +95,19 @@
                   ]
                 },
                 {
-                  "kind": "FUNCTION_KEYWORD"
+                  "kind": "FUNCTION_KEYWORD",
+                  "leadingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": "    "
+                    }
+                  ],
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 },
                 {
                   "kind": "IDENTIFIER_TOKEN",
@@ -77,7 +124,13 @@
                       "children": []
                     },
                     {
-                      "kind": "CLOSE_PAREN_TOKEN"
+                      "kind": "CLOSE_PAREN_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 },
@@ -86,7 +139,13 @@
                   "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "OPEN_BRACE_TOKEN"
+                      "kind": "OPEN_BRACE_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        }
+                      ]
                     },
                     {
                       "kind": "LIST",
@@ -118,10 +177,44 @@
                   ]
                 },
                 {
-                  "kind": "RESOURCE_KEYWORD"
+                  "kind": "RESOURCE_KEYWORD",
+                  "leadingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": "    "
+                    },
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    },
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": "    "
+                    },
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    },
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": "    "
+                    }
+                  ],
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 },
                 {
-                  "kind": "FUNCTION_KEYWORD"
+                  "kind": "FUNCTION_KEYWORD",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 },
                 {
                   "kind": "IDENTIFIER_TOKEN",
@@ -138,7 +231,13 @@
                       "children": []
                     },
                     {
-                      "kind": "CLOSE_PAREN_TOKEN"
+                      "kind": "CLOSE_PAREN_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 },
@@ -147,7 +246,13 @@
                   "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "OPEN_BRACE_TOKEN"
+                      "kind": "OPEN_BRACE_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        }
+                      ]
                     },
                     {
                       "kind": "LIST",

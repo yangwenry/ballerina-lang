@@ -20,7 +20,13 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "ERROR_KEYWORD"
+              "kind": "ERROR_KEYWORD",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "ERROR_TYPE_PARAMS",
@@ -30,8 +36,19 @@
                   "kind": "LT_TOKEN"
                 },
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "NO_MATCHING_OBJECT"
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "NO_MATCHING_OBJECT",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   "kind": "GT_TOKEN",

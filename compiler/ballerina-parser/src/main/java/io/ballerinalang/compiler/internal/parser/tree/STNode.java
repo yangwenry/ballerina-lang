@@ -204,6 +204,20 @@ public abstract class STNode {
         return sb.toString();
     }
 
+    public void writeTo(StringBuilder builder) {
+        for (STNode child : this.childBuckets) {
+            if (SyntaxUtils.isSTNodePresent(child)) {
+                child.writeTo(builder);
+            }
+        }
+    }
+
+    public String toSourceCode() {
+        StringBuilder builder = new StringBuilder();
+        writeTo(builder);
+        return builder.toString();
+    }
+
     protected void addChildren(STNode... children) {
         this.bucketCount = children.length;
         this.childBuckets = children;

@@ -5,8 +5,19 @@
       "kind": "XML_STEP_EXPRESSION",
       "children": [
         {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "a"
+          "kind": "SIMPLE_NAME_REFERENCE",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "a",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            }
+          ]
         },
         {
           "kind": "XML_NAME_PATTERN_CHAIN",
@@ -23,7 +34,13 @@
               ]
             },
             {
-              "kind": "GT_TOKEN"
+              "kind": "GT_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             }
           ]
         }
@@ -33,8 +50,13 @@
       "kind": "DOT_TOKEN"
     },
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "b"
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "b"
+        }
+      ]
     },
     {
       "kind": "OPEN_PAREN_TOKEN"
@@ -47,7 +69,12 @@
           "children": [
             {
               "kind": "DECIMAL_INTEGER_LITERAL",
-              "value": "5"
+              "children": [
+                {
+                  "kind": "DECIMAL_INTEGER_LITERAL",
+                  "value": "5"
+                }
+              ]
             }
           ]
         },
@@ -55,11 +82,22 @@
           "kind": "POSITIONAL_ARG",
           "children": [
             {
-              "kind": "COMMA_TOKEN"
+              "kind": "COMMA_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "a"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
+                }
+              ]
             }
           ]
         },
@@ -67,18 +105,46 @@
           "kind": "NAMED_ARG",
           "children": [
             {
-              "kind": "COMMA_TOKEN"
+              "kind": "COMMA_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "age"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "age",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                }
+              ]
             },
             {
-              "kind": "EQUAL_TOKEN"
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "DECIMAL_INTEGER_LITERAL",
-              "value": "18"
+              "children": [
+                {
+                  "kind": "DECIMAL_INTEGER_LITERAL",
+                  "value": "18"
+                }
+              ]
             }
           ]
         },
@@ -86,14 +152,25 @@
           "kind": "REST_ARG",
           "children": [
             {
-              "kind": "COMMA_TOKEN"
+              "kind": "COMMA_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "ELLIPSIS_TOKEN"
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "subjects"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "subjects"
+                }
+              ]
             }
           ]
         }

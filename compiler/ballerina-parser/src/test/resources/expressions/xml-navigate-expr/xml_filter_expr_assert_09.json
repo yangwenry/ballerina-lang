@@ -3,8 +3,19 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "a"
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "a",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        }
+      ]
     },
     {
       "kind": "XML_NAME_PATTERN_CHAIN",

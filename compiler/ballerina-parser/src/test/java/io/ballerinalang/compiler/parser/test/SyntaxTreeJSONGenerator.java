@@ -25,13 +25,12 @@ import com.google.gson.JsonObject;
 import io.ballerinalang.compiler.internal.parser.BallerinaParser;
 import io.ballerinalang.compiler.internal.parser.ParserFactory;
 import io.ballerinalang.compiler.internal.parser.ParserRuleContext;
-import io.ballerinalang.compiler.internal.parser.tree.STBasicLiteralNode;
-import io.ballerinalang.compiler.internal.parser.tree.STBuiltinSimpleNameReferenceNode;
+import io.ballerinalang.compiler.internal.parser.tree.STInvalidNodeMinutiae;
+import io.ballerinalang.compiler.internal.parser.tree.STMinutiae;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeDiagnostic;
-import io.ballerinalang.compiler.internal.parser.tree.STSimpleNameReferenceNode;
+import io.ballerinalang.compiler.internal.parser.tree.STNodeList;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
-import io.ballerinalang.compiler.internal.parser.tree.STXMLTextNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 import java.io.IOException;
@@ -45,6 +44,7 @@ import java.util.Collection;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.CHILDREN_FIELD;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.DIAGNOSTICS_FIELD;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.HAS_DIAGNOSTICS;
+import static io.ballerinalang.compiler.parser.test.ParserTestConstants.INVALID_NODE_FIELD;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.IS_MISSING_FIELD;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.KIND_FIELD;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.LEADING_MINUTIAE;
@@ -62,7 +62,6 @@ public class SyntaxTreeJSONGenerator {
     /*
      * Change the below two constants as required, depending on the type of test.
      */
-    private static final boolean INCLUDE_TRIVIA = false;
     private static final ParserRuleContext PARSER_CONTEXT = ParserRuleContext.COMP_UNIT;
 
     private static final PrintStream STANDARD_OUT = System.out;
@@ -100,17 +99,6 @@ public class SyntaxTreeJSONGenerator {
     }
 
     private static JsonElement getJSON(STNode treeNode) {
-        // Remove the wrappers
-        if (treeNode instanceof STBasicLiteralNode) {
-            treeNode = ((STBasicLiteralNode) treeNode).literalToken;
-        } else if (treeNode instanceof STSimpleNameReferenceNode) {
-            treeNode = ((STSimpleNameReferenceNode) treeNode).name;
-        } else if (treeNode instanceof STBuiltinSimpleNameReferenceNode) {
-            treeNode = ((STBuiltinSimpleNameReferenceNode) treeNode).name;
-        } else if (treeNode instanceof STXMLTextNode) {
-            treeNode = ((STXMLTextNode) treeNode).content;
-        }
-
         JsonObject jsonNode = new JsonObject();
         SyntaxKind nodeKind = treeNode.kind;
         jsonNode.addProperty(KIND_FIELD, nodeKind.name());
@@ -118,21 +106,21 @@ public class SyntaxTreeJSONGenerator {
         if (treeNode.isMissing()) {
             jsonNode.addProperty(IS_MISSING_FIELD, treeNode.isMissing());
             addDiagnostics(treeNode, jsonNode);
+            if (ParserTestUtils.isToken(treeNode)) {
+                addTrivia((STToken) treeNode, jsonNode);
+            }
             return jsonNode;
         }
 
         addDiagnostics(treeNode, jsonNode);
-        if (ParserTestUtils.isTerminalNode(nodeKind)) {
+        if (ParserTestUtils.isToken(treeNode)) {
 
             // If the node is a terminal node with a dynamic value (i.e: non-syntax node)
             // then add the value to the json.
-            if (!ParserTestUtils.isSyntaxToken(nodeKind)) {
-                jsonNode.addProperty(VALUE_FIELD, ParserTestUtils.getTokenText(treeNode));
+            if (!ParserTestUtils.isKeyword(nodeKind)) {
+                jsonNode.addProperty(VALUE_FIELD, ParserTestUtils.getTokenText((STToken) treeNode));
             }
-
-            if (INCLUDE_TRIVIA && !ParserTestUtils.isTrivia(nodeKind)) {
-                addTrivia((STToken) treeNode, jsonNode);
-            }
+            addTrivia((STToken) treeNode, jsonNode);
             // else do nothing
         } else {
             addChildren(treeNode, jsonNode);
@@ -160,8 +148,40 @@ public class SyntaxTreeJSONGenerator {
     }
 
     private static void addTrivia(STToken token, JsonObject jsonNode) {
-        addNodeList(token.leadingMinutiae(), jsonNode, LEADING_MINUTIAE);
-        addNodeList(token.trailingMinutiae(), jsonNode, TRAILING_MINUTIAE);
+        if (token.leadingMinutiae().bucketCount() != 0) {
+            addMinutiaeList((STNodeList) token.leadingMinutiae(), jsonNode, LEADING_MINUTIAE);
+        }
+
+        if (token.trailingMinutiae().bucketCount() != 0) {
+            addMinutiaeList((STNodeList) token.trailingMinutiae(), jsonNode, TRAILING_MINUTIAE);
+        }
+    }
+
+    private static void addMinutiaeList(STNodeList minutiaeList, JsonObject node, String key) {
+        JsonArray minutiaeJsonArray = new JsonArray();
+        int size = minutiaeList.size();
+        for (int i = 0; i < size; i++) {
+            STMinutiae minutiae = (STMinutiae) minutiaeList.get(i);
+            JsonObject minutiaeJson = new JsonObject();
+            minutiaeJson.addProperty(KIND_FIELD, minutiae.kind.name());
+            switch (minutiae.kind) {
+                case WHITESPACE_MINUTIAE:
+                case END_OF_LINE_MINUTIAE:
+                case COMMENT_MINUTIAE:
+                    minutiaeJson.addProperty(VALUE_FIELD, minutiae.text());
+                    break;
+                case INVALID_NODE_MINUTIAE:
+                    STInvalidNodeMinutiae invalidNodeMinutiae = (STInvalidNodeMinutiae) minutiae;
+                    STNode invalidNode = invalidNodeMinutiae.invalidNode();
+                    minutiaeJson.add(INVALID_NODE_FIELD, getJSON(invalidNode));
+                    break;
+                default:
+                    throw new UnsupportedOperationException("Unsupported minutiae kind: '" + minutiae.kind + "'");
+            }
+
+            minutiaeJsonArray.add(minutiaeJson);
+        }
+        node.add(key, minutiaeJsonArray);
     }
 
     private static void addDiagnostics(STNode treeNode, JsonObject jsonNode) {
